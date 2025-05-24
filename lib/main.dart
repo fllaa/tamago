@@ -1,19 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'di/injection_container.dart' as di;
-import 'app/app.dart';
+// This file is a convenience wrapper around main_prod.dart
+// For development, use flutter run --flavor dev -t lib/main_dev.dart
+// For production, use flutter run --flavor prod -t lib/main_prod.dart
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Set preferred orientations
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-  
-  // Initialize dependencies
-  await di.init();
-  
-  runApp(const App());
-}
+export 'main_prod.dart';
