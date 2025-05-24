@@ -55,12 +55,12 @@ lib/
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/fllaa/fllautter-boilerplate.git
+   git clone https://github.com/fllaa/flutter-boilerplate.git
    ```
 
 2. Navigate to the project directory:
    ```bash
-   cd fllautter-boilerplate
+   cd flutter-boilerplate
    ```
 
 3. Install dependencies:
