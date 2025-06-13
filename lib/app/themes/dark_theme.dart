@@ -18,11 +18,9 @@ class DarkTheme {
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onError: Colors.white,
-          background: const Color(0xFF121212),
           surface: const Color(0xFF1E1E1E),
-          onBackground: Colors.white,
           onSurface: Colors.white,
-          surfaceVariant: const Color(0xFF2C2C2C),
+          surfaceContainerHighest: const Color(0xFF2C2C2C),
           onSurfaceVariant: Colors.white.withOpacity(0.8),
         ),
         scaffoldBackgroundColor: const Color(0xFF121212),
@@ -100,8 +98,8 @@ class DarkTheme {
           hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
         ),
         checkboxTheme: CheckboxThemeData(
-          fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-            if (states.contains(MaterialState.selected)) {
+          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryColor;
             }
             return Colors.transparent;
@@ -112,14 +110,14 @@ class DarkTheme {
           ),
         ),
         switchTheme: SwitchThemeData(
-          thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
-            if (states.contains(MaterialState.selected)) {
+          thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryColor;
             }
             return Colors.white;
           }),
-          trackColor: MaterialStateProperty.resolveWith<Color>((states) {
-            if (states.contains(MaterialState.selected)) {
+          trackColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryColor.withOpacity(0.5);
             }
             return const Color(0xFF3E3E3E);

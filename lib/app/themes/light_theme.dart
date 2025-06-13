@@ -18,9 +18,7 @@ class LightTheme {
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onError: Colors.white,
-          background: Color(0xFFF5F5F5),
           surface: Colors.white,
-          onBackground: AppTheme.neutralBlack,
           onSurface: AppTheme.neutralBlack,
         ),
         scaffoldBackgroundColor: const Color(0xFFF5F5F5),
@@ -98,8 +96,8 @@ class LightTheme {
           hintStyle: const TextStyle(color: AppTheme.neutralGrey),
         ),
         checkboxTheme: CheckboxThemeData(
-          fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-            if (states.contains(MaterialState.selected)) {
+          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryColor;
             }
             return Colors.transparent;
@@ -110,14 +108,14 @@ class LightTheme {
           ),
         ),
         switchTheme: SwitchThemeData(
-          thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
-            if (states.contains(MaterialState.selected)) {
+          thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryColor;
             }
             return Colors.white;
           }),
-          trackColor: MaterialStateProperty.resolveWith<Color>((states) {
-            if (states.contains(MaterialState.selected)) {
+          trackColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryColor.withOpacity(0.5);
             }
             return AppTheme.neutralLightGrey;

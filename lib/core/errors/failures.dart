@@ -15,9 +15,9 @@ class ServerFailure extends Failure {
   final int? statusCode;
 
   const ServerFailure({
-    required String message,
+    required super.message,
     this.statusCode,
-  }) : super(message: message);
+  });
 
   @override
   List<Object> get props => [message, statusCode ?? 0];
@@ -25,17 +25,17 @@ class ServerFailure extends Failure {
 
 /// Represents network failures
 class NetworkFailure extends Failure {
-  const NetworkFailure({required String message}) : super(message: message);
+  const NetworkFailure({required super.message});
 }
 
 /// Represents cache failures
 class CacheFailure extends Failure {
-  const CacheFailure({required String message}) : super(message: message);
+  const CacheFailure({required super.message});
 }
 
 /// Represents authentication failures
 class AuthFailure extends Failure {
-  const AuthFailure({required String message}) : super(message: message);
+  const AuthFailure({required super.message});
 }
 
 /// Represents validation failures
@@ -43,9 +43,9 @@ class ValidationFailure extends Failure {
   final Map<String, List<String>>? fieldErrors;
 
   const ValidationFailure({
-    required String message,
+    required super.message,
     this.fieldErrors,
-  }) : super(message: message);
+  });
 
   @override
   List<Object> get props => [message, fieldErrors ?? {}];
@@ -53,26 +53,25 @@ class ValidationFailure extends Failure {
 
 /// Represents timeout failures
 class TimeoutFailure extends Failure {
-  const TimeoutFailure({required String message}) : super(message: message);
+  const TimeoutFailure({required super.message});
 }
 
 /// Represents not found failures
 class NotFoundFailure extends Failure {
-  const NotFoundFailure({required String message}) : super(message: message);
+  const NotFoundFailure({required super.message});
 }
 
 /// Represents unauthorized failures
 class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure({required String message})
-      : super(message: message);
+  const UnauthorizedFailure({required super.message});
 }
 
 /// Represents forbidden failures
 class ForbiddenFailure extends Failure {
-  const ForbiddenFailure({required String message}) : super(message: message);
+  const ForbiddenFailure({required super.message});
 }
 
 /// Represents unexpected failures
 class UnexpectedFailure extends Failure {
-  const UnexpectedFailure({required String message}) : super(message: message);
+  const UnexpectedFailure({required super.message});
 }
