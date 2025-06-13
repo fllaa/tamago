@@ -5,12 +5,12 @@ This project uses Flutter flavors to manage different environments (development 
 ## Available Flavors
 
 1. **dev** - Development environment
-   - Package name: `dev.com.tachyons.fllautther`
+   - Package name: `dev.com.tachyons.tamago`
    - API URL: `https://dev-mock-api.flla.my.id/v1`
    - Assets URL: `https://dev-assets.example.com`
 
 2. **prod** - Production environment
-   - Package name: `com.tachyons.fllautther`
+   - Package name: `com.tachyons.tamago`
    - API URL: `https://mock-api.flla.my.id/v1`
    - Assets URL: `https://assets.example.com`
 

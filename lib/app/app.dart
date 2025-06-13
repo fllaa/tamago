@@ -17,7 +17,7 @@ class App extends StatelessWidget {
         // Add other global BlocProviders here
       ],
       child: MaterialApp(
-        title: 'Flutter Boilerplate',
+        title: 'Tamago',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

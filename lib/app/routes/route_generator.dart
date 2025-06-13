@@ -94,14 +94,15 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.apps,
-              size: 80,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+            ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image(
+                  image: AssetImage('assets/icons/logo.png'),
+                  height: 100,
+                )),
             const SizedBox(height: 24),
             Text(
-              'Flutter Boilerplate',
+              'Tamago',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.tachyons.fllautther"
+    namespace = "com.tachyons.tamago"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.tachyons.fllautther"
+        applicationId = "com.tachyons.tamago"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -36,12 +36,12 @@ android {
         create("dev") {
             dimension = "environment"
             applicationIdSuffix = ".dev"
-            resValue("string", "app_name", "Flutter Boilerplate Dev")
+            resValue("string", "app_name", "Tamago (卵) [Dev]")
         }
         
         create("prod") {
             dimension = "environment"
-            resValue("string", "app_name", "Flutter Boilerplate")
+            resValue("string", "app_name", "Tamago (卵)")
         }
     }
     

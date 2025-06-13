@@ -8,8 +8,8 @@ class AppTheme {
   AppTheme._();
 
   // Color palette
-  static const Color primaryColor = Color(0xFF3174F2);
-  static const Color secondaryColor = Color(0xFF16B3AA);
+  static const Color primaryColor = Color(0xFFDBA734);
+  static const Color secondaryColor = Color(0xFF4AA3DF);
   static const Color accentColor = Color(0xFFFF6B6B);
   static const Color successColor = Color(0xFF4CAF50);
   static const Color warningColor = Color(0xFFFFC107);

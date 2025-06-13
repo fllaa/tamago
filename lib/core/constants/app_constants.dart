@@ -3,7 +3,7 @@ class AppConstants {
   AppConstants._();
 
   // App info
-  static const String appName = 'Flutter Boilerplate';
+  static const String appName = 'Tamago';
   static const String appVersion = '1.0.0';
 
   // Timeout durations
