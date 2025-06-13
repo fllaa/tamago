@@ -17,7 +17,7 @@ void main() async {
   FlavorConfig(
     flavor: Flavor.prod,
     name: 'PROD',
-    baseUrl: 'https://api.example.com/v1',
+    baseUrl: 'https://mock-api.flla.my.id/v1',
     assetBaseUrl: 'https://assets.example.com',
   );
 

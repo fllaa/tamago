@@ -6,12 +6,12 @@ This project uses Flutter flavors to manage different environments (development 
 
 1. **dev** - Development environment
    - Package name: `dev.com.tachyons.fllautther`
-   - API URL: `https://dev-api.example.com/v1`
+   - API URL: `https://dev-mock-api.flla.my.id/v1`
    - Assets URL: `https://dev-assets.example.com`
 
 2. **prod** - Production environment
    - Package name: `com.tachyons.fllautther`
-   - API URL: `https://api.example.com/v1`
+   - API URL: `https://mock-api.flla.my.id/v1`
    - Assets URL: `https://assets.example.com`
 
 ## Running the App with Flavors
