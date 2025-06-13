@@ -2,7 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 
 abstract class NetworkInfo {
   Future<bool> get isConnected;
-  Stream<ConnectivityResult> get onConnectivityChanged;
+  Stream<List<ConnectivityResult>> get onConnectivityChanged;
 }
 
 class NetworkInfoImpl implements NetworkInfo {
@@ -17,6 +17,6 @@ class NetworkInfoImpl implements NetworkInfo {
   }
 
   @override
-  Stream<ConnectivityResult> get onConnectivityChanged =>
+  Stream<List<ConnectivityResult>> get onConnectivityChanged =>
       connectivity.onConnectivityChanged;
 }

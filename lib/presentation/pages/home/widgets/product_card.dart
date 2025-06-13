@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/core/constants/string_constants.dart';
 
 class ProductCard extends StatelessWidget {
   final String id;

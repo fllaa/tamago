@@ -30,7 +30,7 @@ class LightTheme {
           elevation: 0,
           centerTitle: true,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 2,
           shadowColor: Colors.black.withOpacity(0.1),
