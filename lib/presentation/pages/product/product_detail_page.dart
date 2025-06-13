@@ -3,7 +3,7 @@ import 'package:flutter_boilerplate/core/constants/string_constants.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final String productId;
-  
+
   const ProductDetailPage({
     super.key,
     required this.productId,
@@ -13,19 +13,21 @@ class ProductDetailPage extends StatefulWidget {
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
-class _ProductDetailPageState extends State<ProductDetailPage> with SingleTickerProviderStateMixin {
+class _ProductDetailPageState extends State<ProductDetailPage>
+    with SingleTickerProviderStateMixin {
   int _currentImageIndex = 0;
   late TabController _tabController;
-  
+
   // Mock data for product
   final Map<String, dynamic> product = {
     'id': '1',
     'name': 'Wireless Headphones',
     'price': 99.99,
     'discount': 15,
-    'description': 'Experience crystal-clear sound with our premium wireless headphones. '
-        'Featuring active noise cancellation, 30-hour battery life, and a comfortable over-ear design. '
-        'Perfect for music lovers and professionals alike.',
+    'description':
+        'Experience crystal-clear sound with our premium wireless headphones. '
+            'Featuring active noise cancellation, 30-hour battery life, and a comfortable over-ear design. '
+            'Perfect for music lovers and professionals alike.',
     'rating': 4.5,
     'reviews': 128,
     'in_stock': true,
@@ -43,25 +45,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
       {'name': 'Charging', 'value': 'USB-C'},
     ],
   };
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final discountedPrice = product['discount'] != null
         ? product['price'] * (1 - product['discount'] / 100)
         : product['price'];
-    
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -98,7 +100,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       );
                     },
                   ),
-                  
+
                   // Image indicators
                   Positioned(
                     bottom: 16,
@@ -122,14 +124,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       ),
                     ),
                   ),
-                  
+
                   // Discount badge
                   if (product['discount'] != null)
                     Positioned(
                       top: 16,
                       left: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.error,
                           borderRadius: BorderRadius.circular(16),
@@ -147,7 +150,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
               ),
             ),
           ),
-          
+
           // Product details
           SliverToBoxAdapter(
             child: Padding(
@@ -163,7 +166,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                         ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Rating
                   Row(
                     children: [
@@ -184,22 +187,26 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       Text(
                         '${product['rating']} (${product['reviews']} reviews)',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Price
                   Row(
                     children: [
                       Text(
                         '\$${discountedPrice.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                       ),
                       if (product['discount'] != null) ...[
                         const SizedBox(width: 8),
@@ -209,14 +216,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                             decoration: TextDecoration.lineThrough,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.5),
                           ),
                         ),
                       ],
                     ],
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Stock status
                   Text(
                     product['in_stock'] ? 'In Stock' : 'Out of Stock',
@@ -228,7 +238,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Color options
                   Text(
                     'Color',
@@ -249,7 +259,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Tabs
                   TabBar(
                     controller: _tabController,
@@ -259,7 +269,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       Tab(text: 'Reviews'),
                     ],
                   ),
-                  
+
                   // Tab content
                   SizedBox(
                     height: 200,
@@ -274,19 +284,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
-                        
+
                         // Specifications tab
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: (product['specifications'] as List).length,
-                            separatorBuilder: (context, index) => const Divider(),
+                            itemCount:
+                                (product['specifications'] as List).length,
+                            separatorBuilder: (context, index) =>
+                                const Divider(),
                             itemBuilder: (context, index) {
                               final spec = product['specifications'][index];
                               return Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     spec['name'],
@@ -300,7 +313,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                             },
                           ),
                         ),
-                        
+
                         // Reviews tab
                         const Center(
                           child: Text('No reviews yet'),

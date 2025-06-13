@@ -12,7 +12,8 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderStateMixin {
+class _RegisterPageState extends State<RegisterPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -22,27 +23,27 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   bool _obscureConfirmPassword = true;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animations
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeOut,
       ),
     );
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -100,7 +101,10 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                       // Title
                       Text(
                         'Create an Account',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                         textAlign: TextAlign.center,
@@ -109,12 +113,15 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                       Text(
                         'Fill out the form to get started',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.7),
                             ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Name field
                       CustomTextField(
                         controller: _nameController,
@@ -126,7 +133,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                         validator: Validators.validateName,
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Email field
                       CustomTextField(
                         controller: _emailController,
@@ -137,7 +144,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                         validator: Validators.validateEmail,
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Password field
                       CustomTextField(
                         controller: _passwordController,
@@ -156,7 +163,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                         validator: Validators.validatePassword,
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Confirm Password field
                       CustomTextField(
                         controller: _confirmPasswordController,
@@ -172,20 +179,21 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                           ),
                           onPressed: _toggleConfirmPasswordVisibility,
                         ),
-                        validator: (value) => Validators.validateConfirmPassword(
+                        validator: (value) =>
+                            Validators.validateConfirmPassword(
                           value,
                           _passwordController.text,
                         ),
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Register button
                       CustomButton(
                         text: StringConstants.register,
                         onPressed: _register,
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Login link
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -193,7 +201,8 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                           const Text('Already have an account?'),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushReplacementNamed(context, AppRoutes.login);
+                              Navigator.pushReplacementNamed(
+                                  context, AppRoutes.login);
                             },
                             child: const Text(StringConstants.login),
                           ),

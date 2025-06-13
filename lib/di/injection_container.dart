@@ -18,23 +18,23 @@ Future<void> init() async {
   getIt.registerSingleton<SharedPreferences>(sharedPreferences);
   getIt.registerSingleton<Dio>(Dio());
   getIt.registerSingleton<Connectivity>(Connectivity());
-  
+
   // Core
   getIt.registerSingleton<NetworkInfo>(
     NetworkInfoImpl(getIt<Connectivity>()),
   );
-  
+
   getIt.registerSingleton<StorageService>(
     SharedPrefsStorageService(getIt<SharedPreferences>()),
   );
-  
+
   getIt.registerSingleton<ApiClient>(
     ApiClient(
       dio: getIt<Dio>(),
       networkInfo: getIt<NetworkInfo>(),
     ),
   );
-  
+
   // Repositories
   getIt.registerSingleton<AuthRepository>(
     AuthRepositoryImpl(
@@ -43,12 +43,12 @@ Future<void> init() async {
       storageService: getIt<StorageService>(),
     ),
   );
-  
+
   // Use cases
   getIt.registerSingleton<LoginUseCase>(
     LoginUseCase(getIt<AuthRepository>()),
   );
-  
+
   // ViewModels
   getIt.registerFactory<LoginViewModel>(
     () => LoginViewModel(loginUseCase: getIt<LoginUseCase>()),

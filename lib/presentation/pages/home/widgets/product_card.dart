@@ -8,7 +8,7 @@ class ProductCard extends StatelessWidget {
   final double price;
   final String imageUrl;
   final int? discount;
-  
+
   const ProductCard({
     super.key,
     required this.id,
@@ -47,7 +47,8 @@ class ProductCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(12)),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: Image.network(
@@ -61,7 +62,8 @@ class ProductCard extends StatelessWidget {
                     top: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.error,
                         borderRadius: BorderRadius.circular(4),
@@ -102,7 +104,7 @@ class ProductCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             // Product Details
             Padding(
               padding: const EdgeInsets.all(12.0),
@@ -112,8 +114,8 @@ class ProductCard extends StatelessWidget {
                   Text(
                     name,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -123,9 +125,9 @@ class ProductCard extends StatelessWidget {
                       Text(
                         '\$${price.toStringAsFixed(2)}',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                       if (discount != null) ...[
                         const SizedBox(width: 8),
@@ -135,7 +137,10 @@ class ProductCard extends StatelessWidget {
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             decoration: TextDecoration.lineThrough,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.5),
                           ),
                         ),
                       ],
@@ -158,7 +163,10 @@ class ProductCard extends StatelessWidget {
                         '(4.0)',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7),
                         ),
                       ),
                     ],

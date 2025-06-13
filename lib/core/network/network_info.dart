@@ -15,8 +15,8 @@ class NetworkInfoImpl implements NetworkInfo {
     final connectivityResult = await connectivity.checkConnectivity();
     return connectivityResult != ConnectivityResult.none;
   }
-  
+
   @override
-  Stream<ConnectivityResult> get onConnectivityChanged => 
+  Stream<ConnectivityResult> get onConnectivityChanged =>
       connectivity.onConnectivityChanged;
 }

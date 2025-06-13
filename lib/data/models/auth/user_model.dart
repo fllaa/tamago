@@ -8,19 +8,19 @@ class UserModel {
   final String id;
   final String email;
   final String name;
-  
+
   @JsonKey(name: 'profile_image')
   final String? profileImage;
-  
+
   @JsonKey(name: 'phone_number')
   final String? phoneNumber;
-  
+
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
-  
+
   @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
-  
+
   UserModel({
     required this.id,
     required this.email,
@@ -30,12 +30,12 @@ class UserModel {
     required this.createdAt,
     required this.updatedAt,
   });
-  
-  factory UserModel.fromJson(Map<String, dynamic> json) => 
+
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
-      
+
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
-  
+
   // Convert to domain entity
   User toEntity() {
     return User(
@@ -48,7 +48,7 @@ class UserModel {
       updatedAt: updatedAt,
     );
   }
-  
+
   // Create from domain entity
   factory UserModel.fromEntity(User user) {
     return UserModel(

@@ -3,9 +3,9 @@ import 'package:equatable/equatable.dart';
 /// Base failure class for domain layer
 abstract class Failure extends Equatable {
   final String message;
-  
+
   const Failure({required this.message});
-  
+
   @override
   List<Object> get props => [message];
 }
@@ -13,12 +13,12 @@ abstract class Failure extends Equatable {
 /// Represents server failures
 class ServerFailure extends Failure {
   final int? statusCode;
-  
+
   const ServerFailure({
     required String message,
     this.statusCode,
   }) : super(message: message);
-  
+
   @override
   List<Object> get props => [message, statusCode ?? 0];
 }
@@ -41,12 +41,12 @@ class AuthFailure extends Failure {
 /// Represents validation failures
 class ValidationFailure extends Failure {
   final Map<String, List<String>>? fieldErrors;
-  
+
   const ValidationFailure({
     required String message,
     this.fieldErrors,
   }) : super(message: message);
-  
+
   @override
   List<Object> get props => [message, fieldErrors ?? {}];
 }
@@ -63,7 +63,8 @@ class NotFoundFailure extends Failure {
 
 /// Represents unauthorized failures
 class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure({required String message}) : super(message: message);
+  const UnauthorizedFailure({required String message})
+      : super(message: message);
 }
 
 /// Represents forbidden failures

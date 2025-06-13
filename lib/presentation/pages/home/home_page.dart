@@ -13,20 +13,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  
+
   final List<Widget> _pages = [
     const HomeContent(),
     const Center(child: Text('Categories')),
     const Center(child: Text('Cart')),
     const Center(child: Text('Profile')),
   ];
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,36 +75,40 @@ class HomeContent extends StatelessWidget {
       {'name': 'Home', 'icon': Icons.home},
       {'name': 'Beauty', 'icon': Icons.face},
     ];
-    
+
     final products = [
       {
         'id': '1',
         'name': 'Wireless Headphones',
         'price': 99.99,
-        'image': 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'image':
+            'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
         'discount': 15,
       },
       {
         'id': '2',
         'name': 'Smart Watch',
         'price': 199.99,
-        'image': 'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'image':
+            'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
       },
       {
         'id': '3',
         'name': 'Laptop Pro',
         'price': 1299.99,
-        'image': 'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'image':
+            'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
         'discount': 10,
       },
       {
         'id': '4',
         'name': 'Smartphone X',
         'price': 899.99,
-        'image': 'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'image':
+            'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
       },
     ];
-    
+
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
@@ -133,7 +137,8 @@ class HomeContent extends StatelessWidget {
                           hintText: 'Search products...',
                           prefixIcon: Icon(Icons.search),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
                         ),
                       ),
                     ),
@@ -159,7 +164,7 @@ class HomeContent extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Promotional Banner
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -202,7 +207,10 @@ class HomeContent extends StatelessWidget {
                         children: [
                           Text(
                             'Summer Sale',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -210,7 +218,10 @@ class HomeContent extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             'Up to 50% off',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -220,8 +231,10 @@ class HomeContent extends StatelessWidget {
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
-                              foregroundColor: Theme.of(context).colorScheme.primary,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                             ),
                             child: const Text('Shop Now'),
                           ),
@@ -232,10 +245,11 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Categories
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
+              padding:
+                  const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -253,10 +267,11 @@ class HomeContent extends StatelessWidget {
               ),
             ),
             CategorySlider(categories: categories),
-            
+
             // Popular Products
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
+              padding:
+                  const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -275,7 +290,7 @@ class HomeContent extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Product Grid
             Padding(
               padding: const EdgeInsets.all(16.0),

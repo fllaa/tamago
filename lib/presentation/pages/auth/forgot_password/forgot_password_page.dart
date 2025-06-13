@@ -12,33 +12,34 @@ class ForgotPasswordPage extends StatefulWidget {
   State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> with SingleTickerProviderStateMixin {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _isLoading = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animations
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeOut,
       ),
     );
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -51,22 +52,22 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> with SingleTick
       setState(() {
         _isLoading = true;
       });
-      
+
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(StringConstants.passwordResetEmailSent),
             backgroundColor: Colors.green,
           ),
         );
-        
+
         Navigator.pushReplacementNamed(context, AppRoutes.login);
       }
     }
@@ -98,27 +99,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> with SingleTick
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Title
                       Text(
                         'Forgot Your Password?',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Description
                       Text(
                         'Enter your email address and we\'ll send you instructions to reset your password.',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.7),
                             ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Email field
                       CustomTextField(
                         controller: _emailController,
@@ -129,7 +134,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> with SingleTick
                         validator: Validators.validateEmail,
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Reset Password button
                       CustomButton(
                         text: 'Send Reset Link',
@@ -137,7 +142,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> with SingleTick
                         isLoading: _isLoading,
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Back to Login
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -145,7 +150,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> with SingleTick
                           const Text('Remember your password?'),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushReplacementNamed(context, AppRoutes.login);
+                              Navigator.pushReplacementNamed(
+                                  context, AppRoutes.login);
                             },
                             child: const Text('Back to Login'),
                           ),

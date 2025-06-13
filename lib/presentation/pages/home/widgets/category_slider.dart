@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CategorySlider extends StatelessWidget {
   final List<Map<String, dynamic>> categories;
-  
+
   const CategorySlider({
     super.key,
     required this.categories,
@@ -26,7 +26,8 @@ class CategorySlider extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -39,8 +40,8 @@ class CategorySlider extends StatelessWidget {
                 Text(
                   category['name'] as String,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),

@@ -12,16 +12,17 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool _isDarkMode = false;
   bool _notificationsEnabled = true;
-  
+
   // Mock user data
   final Map<String, dynamic> user = {
     'name': 'John Doe',
     'email': 'john.doe@example.com',
-    'profileImage': 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    'profileImage':
+        'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     'phone': '+1 234 567 890',
     'address': '123 Main St, New York, NY 10001',
   };
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     backgroundImage: NetworkImage(user['profileImage']),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // User name
                   Text(
                     user['name'],
@@ -67,16 +68,19 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // User email
                   Text(
                     user['email'],
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Edit profile button
                   OutlinedButton.icon(
                     onPressed: () {},
@@ -87,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Account section
             _buildSection(
               context,
@@ -120,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Settings section
             _buildSection(
               context,
@@ -164,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Support section
             _buildSection(
               context,
@@ -197,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Logout button
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -218,7 +222,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              Navigator.pushReplacementNamed(context, AppRoutes.login);
+                              Navigator.pushReplacementNamed(
+                                  context, AppRoutes.login);
                             },
                             child: const Text(StringConstants.logout),
                           ),
@@ -230,7 +235,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   label: const Text(StringConstants.logout),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.error,
-                    side: BorderSide(color: Theme.of(context).colorScheme.error),
+                    side:
+                        BorderSide(color: Theme.of(context).colorScheme.error),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
@@ -242,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-  
+
   Widget _buildSection(
     BuildContext context, {
     required String title,
@@ -279,7 +285,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-  
+
   Widget _buildMenuItem(
     BuildContext context, {
     required IconData icon,
@@ -307,14 +313,15 @@ class _ProfilePageState extends State<ProfilePage> {
             trailing ??
                 Icon(
                   Icons.chevron_right,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                 ),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildSwitchMenuItem(
     BuildContext context, {
     required IconData icon,

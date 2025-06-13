@@ -15,8 +15,7 @@ class LoggingInterceptor extends Interceptor {
   );
 
   @override
-  void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {
       _logger.i('REQUEST[${options.method}] => '
           'PATH: ${options.path}\n'

@@ -15,7 +15,8 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -28,20 +29,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animations
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeOut,
       ),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
@@ -51,10 +52,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         curve: Curves.easeOut,
       ),
     );
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -130,17 +131,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Title
                           Text(
                             StringConstants.login,
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 40),
-                          
+
                           // Email field
                           CustomTextField(
                             controller: _emailController,
@@ -151,7 +155,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             validator: Validators.validateEmail,
                           ),
                           const SizedBox(height: 20),
-                          
+
                           // Password field
                           CustomTextField(
                             controller: _passwordController,
@@ -170,7 +174,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             validator: Validators.validatePassword,
                           ),
                           const SizedBox(height: 12),
-                          
+
                           // Remember me and Forgot password
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,19 +193,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                   const Text('Remember me'),
                                 ],
                               ),
-                              
+
                               // Forgot password
                               TextButton(
                                 onPressed: () {
                                   Navigator.pushNamed(
                                       context, AppRoutes.forgotPassword);
                                 },
-                                child: const Text(StringConstants.forgotPassword),
+                                child:
+                                    const Text(StringConstants.forgotPassword),
                               ),
                             ],
                           ),
                           const SizedBox(height: 20),
-                          
+
                           // Login button
                           BlocBuilder<LoginViewModel, LoginState>(
                             builder: (context, state) {
@@ -214,7 +219,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             },
                           ),
                           const SizedBox(height: 24),
-                          
+
                           // Register link
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -222,7 +227,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const Text("Don't have an account?"),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, AppRoutes.register);
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.register);
                                 },
                                 child: const Text(StringConstants.register),
                               ),

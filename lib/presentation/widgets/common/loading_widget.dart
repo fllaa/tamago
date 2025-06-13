@@ -4,7 +4,7 @@ class LoadingWidget extends StatelessWidget {
   final String? message;
   final Color? color;
   final double size;
-  
+
   const LoadingWidget({
     super.key,
     this.message,
