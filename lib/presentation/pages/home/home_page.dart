@@ -169,7 +169,7 @@ class HomeContent extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
-                height: 160,
+                height: 170,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -215,7 +215,7 @@ class HomeContent extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 4),
                           Text(
                             'Up to 50% off',
                             style: Theme.of(context)
@@ -226,7 +226,7 @@ class HomeContent extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 8),
                           ElevatedButton(
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
