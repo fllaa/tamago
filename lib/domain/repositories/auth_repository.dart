@@ -38,4 +38,7 @@ abstract class AuthRepository {
 
   /// Logout the current user
   Future<Either<Failure, void>> logout();
+
+  /// Sign in with Google
+  Future<Either<Failure, User>> signInWithGoogle();
 }

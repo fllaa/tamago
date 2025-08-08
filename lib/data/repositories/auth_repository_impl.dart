@@ -11,6 +11,7 @@ import 'package:flutter_boilerplate/data/models/auth/login_response.dart';
 import 'package:flutter_boilerplate/data/models/auth/user_model.dart';
 import 'package:flutter_boilerplate/domain/entities/user.dart';
 import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final ApiClient apiClient;
@@ -239,6 +240,60 @@ class AuthRepositoryImpl implements AuthRepository {
       // Clear storage
       await storageService.clear();
       return const Right(null);
+    } catch (e) {
+      return Left(UnexpectedFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> signInWithGoogle() async {
+    try {
+      if (!await networkInfo.isConnected) {
+        return const Left(NetworkFailure(
+          message: 'No internet connection. Please check your network.',
+        ));
+      }
+
+      // Initialize Google Sign-In
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      // Sign out any existing user
+      await googleSignIn.signOut();
+
+      // Sign in with Google
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User canceled the sign-in
+        return Left(AuthFailure(message: 'Google sign-in was canceled'));
+      }
+
+      // Get authentication details
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // For now, we'll create a mock user based on Google account info
+      // In a real implementation, you would send the Google ID token to your backend
+      // to authenticate the user and get user details
+      final UserModel user = UserModel(
+        id: googleUser.id,
+        name: googleUser.displayName ?? 'Google User',
+        email: googleUser.email,
+        profileImage: googleUser.photoUrl,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      // Save user data
+      await storageService.set(AppConstants.userKey, user.toJson());
+
+      // For a real implementation, you would also save an authentication token
+      // For now, we'll just save a mock token
+      await storageService.set(AppConstants.tokenKey, 'google_auth_token');
+
+      return Right(user.toEntity());
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
     } catch (e) {
       return Left(UnexpectedFailure(message: e.toString()));
     }

@@ -6,7 +6,9 @@ import 'package:flutter_boilerplate/core/services/storage_service.dart';
 import 'package:flutter_boilerplate/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/login_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/auth/sign_in_with_google_usecase.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/login_viewmodel.dart';
+import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -49,8 +51,18 @@ Future<void> init() async {
     LoginUseCase(getIt<AuthRepository>()),
   );
 
+  getIt.registerSingleton<SignInWithGoogleUseCase>(
+    SignInWithGoogleUseCase(getIt<AuthRepository>()),
+  );
+
   // ViewModels
   getIt.registerFactory<LoginViewModel>(
     () => LoginViewModel(loginUseCase: getIt<LoginUseCase>()),
+  );
+
+  getIt.registerFactory<SignInWithGoogleViewModel>(
+    () => SignInWithGoogleViewModel(
+      signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>(),
+    ),
   );
 }

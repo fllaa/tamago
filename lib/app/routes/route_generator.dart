@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/presentation/pages/auth/forgot_password/forgot_password_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/auth/login/login_page.dart';
-import 'package:flutter_boilerplate/presentation/pages/auth/register/register_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/home_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/product/product_detail_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/product/product_list_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
+import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
+import 'package:get_it/get_it.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -17,11 +18,12 @@ class RouteGenerator {
       case AppRoutes.splash:
         return _buildRoute(const SplashPage());
       case AppRoutes.login:
-        return _buildLoginRoute(const LoginPage());
-      case AppRoutes.register:
-        return _buildRoute(const RegisterPage());
-      case AppRoutes.forgotPassword:
-        return _buildRoute(const ForgotPasswordPage());
+        return _buildLoginRoute(
+          BlocProvider(
+            create: (context) => GetIt.I<SignInWithGoogleViewModel>(),
+            child: const LoginPage(),
+          ),
+        );
       case AppRoutes.home:
         return _buildRoute(const HomePage());
       case AppRoutes.profile:

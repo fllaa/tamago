@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "196098228595",
+    "project_id": "tamago-dev-16c77",
+    "storage_bucket": "tamago-dev-16c77.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196098228595:android:0437c49d20e2100e460506",
+        "android_client_info": {
+          "package_name": "com.tachyons.tamago.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCS1bUl-pX2VzHhDJM3XCF4JcTUpSpRE4k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
