@@ -128,6 +128,16 @@ class LightTheme {
           type: BottomNavigationBarType.fixed,
           elevation: 8,
         ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.white,
+          indicatorColor: AppTheme.primaryColor.withOpacity(0.1),
+          labelTextStyle: WidgetStateProperty.all(
+            const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
         dividerTheme: const DividerThemeData(
           color: AppTheme.neutralLightGrey,
           thickness: 1,

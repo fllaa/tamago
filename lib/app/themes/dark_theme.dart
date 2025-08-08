@@ -130,6 +130,16 @@ class DarkTheme {
           type: BottomNavigationBarType.fixed,
           elevation: 8,
         ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: const Color(0xFF1E1E1E),
+          indicatorColor: AppTheme.primaryColor.withOpacity(0.2),
+          labelTextStyle: WidgetStateProperty.all(
+            const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
         dividerTheme: const DividerThemeData(
           color: Color(0xFF3E3E3E),
           thickness: 1,

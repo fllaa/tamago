@@ -31,29 +31,28 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onItemTapped,
+        destinations: const [
+          NavigationDestination(
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
+            selectedIcon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.category_outlined),
-            activeIcon: Icon(Icons.category),
+            selectedIcon: Icon(Icons.category),
             label: 'Categories',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.shopping_cart_outlined),
-            activeIcon: Icon(Icons.shopping_cart),
+            selectedIcon: Icon(Icons.shopping_cart),
             label: 'Cart',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
+            selectedIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],
