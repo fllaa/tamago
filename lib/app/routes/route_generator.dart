@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
+import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:flutter_boilerplate/presentation/pages/auth/login/login_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/home_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/product/product_detail_page.dart';
@@ -106,7 +107,13 @@ class _SplashPageState extends State<SplashPage> {
   void _navigateToNextScreen() async {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      // Check if user is logged in
+      final authRepository = GetIt.I<AuthRepository>();
+      final isLoggedIn = await authRepository.isLoggedIn();
+
+      // Navigate to home if logged in, otherwise navigate to login
+      Navigator.pushReplacementNamed(
+          context, isLoggedIn ? AppRoutes.home : AppRoutes.login);
     }
   }
 
