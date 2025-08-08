@@ -7,6 +7,7 @@ import 'package:flutter_boilerplate/presentation/pages/product/product_detail_pa
 import 'package:flutter_boilerplate/presentation/pages/product/product_list_page.dart';
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
+import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 
 class RouteGenerator {
@@ -27,7 +28,12 @@ class RouteGenerator {
       case AppRoutes.home:
         return _buildRoute(const HomePage());
       case AppRoutes.profile:
-        return _buildRoute(const ProfilePage());
+        return _buildRoute(
+          BlocProvider(
+            create: (context) => GetIt.I<ProfileViewModel>()..loadUserProfile(),
+            child: const ProfilePage(),
+          ),
+        );
       case AppRoutes.productList:
         return _buildRoute(const ProductListPage());
       case AppRoutes.productDetail:

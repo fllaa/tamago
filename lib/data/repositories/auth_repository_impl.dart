@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_boilerplate/core/constants/api_constants.dart';
 import 'package:flutter_boilerplate/core/constants/app_constants.dart';
@@ -215,7 +216,9 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       }
 
-      final userModel = UserModel.fromJson(userJson);
+      // If userJson is a string, parse it to a Map
+      final userMap = userJson is String ? json.decode(userJson) : userJson;
+      final userModel = UserModel.fromJson(userMap);
       return Right(userModel.toEntity());
     } on CacheException catch (e) {
       return Left(CacheFailure(message: e.message));

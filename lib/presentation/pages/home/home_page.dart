@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
 import 'package:flutter_boilerplate/core/constants/string_constants.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/category_slider.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/product_card.dart';
+import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
+import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
+import 'package:get_it/get_it.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +22,10 @@ class _HomePageState extends State<HomePage> {
     const HomeContent(),
     const Center(child: Text('Categories')),
     const Center(child: Text('Cart')),
-    const Center(child: Text('Profile')),
+    BlocProvider(
+      create: (context) => GetIt.I<ProfileViewModel>()..loadUserProfile(),
+      child: const ProfilePage(),
+    ),
   ];
 
   void _onItemTapped(int index) {
