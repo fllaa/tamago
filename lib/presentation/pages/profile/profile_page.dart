@@ -3,7 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/app/app.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/core/constants/string_constants.dart';
+import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
 import 'package:flutter_boilerplate/domain/entities/user.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
 
@@ -56,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(StringConstants.profile),
+        title: Text(AppLocalizations.of(context).translate('profile')),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -79,7 +79,8 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                     onPressed: () {
                       context.read<ProfileViewModel>().loadUserProfile();
                     },
-                    child: const Text('Retry'),
+                    child:
+                        Text(AppLocalizations.of(context).translate('retry')),
                   ),
                 ],
               ),
@@ -87,7 +88,9 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           } else if (state is ProfileLoaded) {
             final user = state.user;
             if (user == null) {
-              return const Center(child: Text('No user data available'));
+              return Center(
+                  child: Text(
+                      AppLocalizations.of(context).translate('genericError')));
             }
 
             return SingleChildScrollView(
@@ -159,7 +162,8 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                           OutlinedButton.icon(
                             onPressed: () {},
                             icon: const Icon(Icons.edit),
-                            label: const Text(StringConstants.editProfile),
+                            label: Text(AppLocalizations.of(context)
+                                .translate('editProfile')),
                           ),
                         ],
                       ),
@@ -170,30 +174,34 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                   // Account section
                   _buildSection(
                     context,
-                    title: 'Account',
+                    title: AppLocalizations.of(context).translate('account'),
                     items: [
                       _buildMenuItem(
                         context,
                         icon: Icons.person_outline,
-                        title: 'Personal Information',
+                        title: AppLocalizations.of(context)
+                            .translate('personalInformation'),
                         onTap: () {},
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.local_shipping_outlined,
-                        title: StringConstants.myOrders,
+                        title:
+                            AppLocalizations.of(context).translate('myOrders'),
                         onTap: () {},
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.location_on_outlined,
-                        title: 'My Addresses',
+                        title: AppLocalizations.of(context)
+                            .translate('myAddresses'),
                         onTap: () {},
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.favorite_border,
-                        title: StringConstants.wishlist,
+                        title:
+                            AppLocalizations.of(context).translate('wishlist'),
                         onTap: () {},
                       ),
                     ],
@@ -203,12 +211,13 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                   // Settings section
                   _buildSection(
                     context,
-                    title: StringConstants.settings,
+                    title: AppLocalizations.of(context).translate('settings'),
                     items: [
                       _buildSwitchMenuItem(
                         context,
                         icon: Icons.dark_mode_outlined,
-                        title: 'Dark Mode',
+                        title:
+                            AppLocalizations.of(context).translate('darkMode'),
                         value: _isDarkMode,
                         onChanged: (value) {
                           setState(() {
@@ -225,7 +234,8 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                       _buildSwitchMenuItem(
                         context,
                         icon: Icons.notifications_outlined,
-                        title: 'Notifications',
+                        title: AppLocalizations.of(context)
+                            .translate('notifications'),
                         value: _notificationsEnabled,
                         onChanged: (value) {
                           setState(() {
@@ -236,14 +246,16 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                       _buildMenuItem(
                         context,
                         icon: Icons.language_outlined,
-                        title: 'Language',
-                        trailing: const Text('English'),
-                        onTap: () {},
+                        title:
+                            AppLocalizations.of(context).translate('language'),
+                        trailing: _buildLanguageTrailing(context),
+                        onTap: () => _showLanguageDialog(context),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.lock_outline,
-                        title: 'Privacy & Security',
+                        title: AppLocalizations.of(context)
+                            .translate('privacyAndSecurity'),
                         onTap: () {},
                       ),
                     ],
@@ -253,30 +265,34 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                   // Support section
                   _buildSection(
                     context,
-                    title: 'Support',
+                    title: AppLocalizations.of(context).translate('support'),
                     items: [
                       _buildMenuItem(
                         context,
                         icon: Icons.help_outline,
-                        title: StringConstants.helpAndSupport,
+                        title: AppLocalizations.of(context)
+                            .translate('helpAndSupport'),
                         onTap: () {},
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.info_outline,
-                        title: StringConstants.aboutUs,
+                        title:
+                            AppLocalizations.of(context).translate('aboutUs'),
                         onTap: () {},
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.description_outlined,
-                        title: StringConstants.termsAndConditions,
+                        title: AppLocalizations.of(context)
+                            .translate('termsAndConditions'),
                         onTap: () {},
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.policy_outlined,
-                        title: StringConstants.privacyPolicy,
+                        title: AppLocalizations.of(context)
+                            .translate('privacyPolicy'),
                         onTap: () {},
                       ),
                     ],
@@ -293,13 +309,15 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: const Text(StringConstants.logout),
-                              content: const Text(
-                                  StringConstants.logoutConfirmation),
+                              title: Text(AppLocalizations.of(context)
+                                  .translate('logout')),
+                              content: Text(AppLocalizations.of(context)
+                                  .translate('logoutConfirmation')),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: const Text(StringConstants.cancel),
+                                  child: Text(AppLocalizations.of(context)
+                                      .translate('cancel')),
                                 ),
                                 TextButton(
                                   onPressed: () {
@@ -307,14 +325,16 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                                     Navigator.pushReplacementNamed(
                                         context, AppRoutes.login);
                                   },
-                                  child: const Text(StringConstants.logout),
+                                  child: Text(AppLocalizations.of(context)
+                                      .translate('logout')),
                                 ),
                               ],
                             ),
                           );
                         },
                         icon: const Icon(Icons.logout),
-                        label: const Text(StringConstants.logout),
+                        label: Text(
+                            AppLocalizations.of(context).translate('logout')),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Theme.of(context).colorScheme.error,
                           side: BorderSide(
@@ -438,6 +458,56 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLanguageTrailing(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    String languageName = AppLocalizations.of(context).translate('english');
+
+    if (locale.languageCode == 'id') {
+      languageName = AppLocalizations.of(context).translate('bahasaIndonesia');
+    }
+
+    return Text(languageName);
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    final currentLocale = Localizations.localeOf(context);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context).translate('language')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text(AppLocalizations.of(context).translate('english')),
+                trailing: currentLocale.languageCode == 'en'
+                    ? const Icon(Icons.check, color: Colors.blue)
+                    : null,
+                onTap: () {
+                  Navigator.pop(context);
+                  App.updateLanguage(context, 'en');
+                },
+              ),
+              ListTile(
+                title: Text(
+                    AppLocalizations.of(context).translate('bahasaIndonesia')),
+                trailing: currentLocale.languageCode == 'id'
+                    ? const Icon(Icons.check, color: Colors.blue)
+                    : null,
+                onTap: () {
+                  Navigator.pop(context);
+                  App.updateLanguage(context, 'id');
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

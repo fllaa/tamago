@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/core/constants/string_constants.dart';
+import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/category_slider.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/product_card.dart';
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
@@ -20,8 +20,8 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const HomeContent(),
-    const Center(child: Text('Categories')),
-    const Center(child: Text('Cart')),
+    Center(child: Text('Categories')),
+    Center(child: Text('Cart')),
     BlocProvider(
       create: (context) => GetIt.I<ProfileViewModel>()..loadUserProfile(),
       child: const ProfilePage(),
@@ -41,26 +41,26 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: AppLocalizations.of(context).translate('home'),
           ),
           NavigationDestination(
             icon: Icon(Icons.category_outlined),
             selectedIcon: Icon(Icons.category),
-            label: 'Categories',
+            label: AppLocalizations.of(context).translate('categories'),
           ),
           NavigationDestination(
             icon: Icon(Icons.shopping_cart_outlined),
             selectedIcon: Icon(Icons.shopping_cart),
-            label: 'Cart',
+            label: AppLocalizations.of(context).translate('cart'),
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: AppLocalizations.of(context).translate('profile'),
           ),
         ],
       ),
@@ -260,14 +260,15 @@ class HomeContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    StringConstants.categories,
+                    AppLocalizations.of(context).translate('categories'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   TextButton(
                     onPressed: () {},
-                    child: const Text(StringConstants.viewAll),
+                    child:
+                        Text(AppLocalizations.of(context).translate('viewAll')),
                   ),
                 ],
               ),
@@ -282,7 +283,7 @@ class HomeContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    StringConstants.popularProducts,
+                    AppLocalizations.of(context).translate('popularProducts'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -291,7 +292,8 @@ class HomeContent extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushNamed(context, AppRoutes.productList);
                     },
-                    child: const Text(StringConstants.viewAll),
+                    child:
+                        Text(AppLocalizations.of(context).translate('viewAll')),
                   ),
                 ],
               ),

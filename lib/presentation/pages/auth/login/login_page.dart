@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/core/constants/string_constants.dart';
+import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/widgets/common/custom_button.dart';
 import 'package:flutter_boilerplate/presentation/widgets/common/loading_widget.dart';
@@ -66,8 +66,9 @@ class _LoginPageState extends State<LoginPage>
         listener: (context, state) {
           if (state is SignInWithGoogleSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(StringConstants.loginSuccessful),
+              SnackBar(
+                content: Text(
+                    AppLocalizations.of(context).translate('loginSuccessful')),
                 backgroundColor: Colors.green,
               ),
             );
@@ -104,7 +105,7 @@ class _LoginPageState extends State<LoginPage>
 
                         // Title
                         Text(
-                          StringConstants.login,
+                          AppLocalizations.of(context).translate('login'),
                           style: Theme.of(context)
                               .textTheme
                               .headlineMedium
@@ -122,7 +123,8 @@ class _LoginPageState extends State<LoginPage>
                             return state is SignInWithGoogleLoading
                                 ? const LoadingWidget()
                                 : CustomButton(
-                                    text: 'Sign in with Google',
+                                    text: AppLocalizations.of(context)
+                                        .translate('signInWithGoogle'),
                                     icon: Icons.account_circle_outlined,
                                     onPressed: _signInWithGoogle,
                                   );

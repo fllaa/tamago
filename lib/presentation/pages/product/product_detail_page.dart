@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/core/constants/string_constants.dart';
+import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final String productId;
@@ -359,7 +359,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text(StringConstants.buyNow),
+                child: Text(AppLocalizations.of(context).translate('buyNow')),
               ),
             ),
           ],
