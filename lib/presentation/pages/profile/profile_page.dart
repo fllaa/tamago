@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_boilerplate/app/app.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
 import 'package:flutter_boilerplate/core/constants/string_constants.dart';
 import 'package:flutter_boilerplate/domain/entities/user.dart';
@@ -12,9 +14,43 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
   bool _isDarkMode = false;
   bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    // Update the theme mode when system theme changes
+    _loadThemeMode();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update the theme mode when app theme changes
+    _loadThemeMode();
+  }
+
+  void _loadThemeMode() {
+    if (!mounted) return;
+    final appState = App.of(context);
+    setState(() {
+      _isDarkMode = appState.themeMode == ThemeMode.dark;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +214,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           setState(() {
                             _isDarkMode = value;
                           });
+
+                          // Update the app theme
+                          final appState = App.of(context);
+                          appState.updateThemeMode(
+                            value ? ThemeMode.dark : ThemeMode.light,
+                          );
                         },
                       ),
                       _buildSwitchMenuItem(

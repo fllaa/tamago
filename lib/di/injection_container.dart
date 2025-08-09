@@ -13,6 +13,7 @@ import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_go
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_boilerplate/core/services/theme_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -30,6 +31,10 @@ Future<void> init() async {
 
   getIt.registerSingleton<StorageService>(
     SharedPrefsStorageService(getIt<SharedPreferences>()),
+  );
+
+  getIt.registerSingleton<ThemeService>(
+    ThemeService(getIt<StorageService>() as SharedPrefsStorageService),
   );
 
   getIt.registerSingleton<ApiClient>(

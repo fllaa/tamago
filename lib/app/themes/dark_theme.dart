@@ -139,6 +139,13 @@ class DarkTheme {
               fontWeight: FontWeight.w500,
             ),
           ),
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const IconThemeData(color: AppTheme.primaryColor);
+            }
+            return const IconThemeData(color: Color(0xFFAAAAAA));
+          }),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
         dividerTheme: const DividerThemeData(
           color: Color(0xFF3E3E3E),
