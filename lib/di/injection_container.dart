@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_boilerplate/core/network/api_client.dart';
 import 'package:flutter_boilerplate/core/network/network_info.dart';
 import 'package:flutter_boilerplate/core/services/storage_service.dart';
+import 'package:flutter_boilerplate/core/services/supabase_service.dart';
 import 'package:flutter_boilerplate/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/get_current_user_usecase.dart';
@@ -36,6 +37,11 @@ Future<void> init() async {
 
   getIt.registerSingleton<ThemeService>(
     ThemeService(getIt<StorageService>() as SharedPrefsStorageService),
+  );
+
+  // Supabase Service
+  getIt.registerSingleton<SupabaseService>(
+    SupabaseService.instance,
   );
 
   getIt.registerSingleton<ApiClient>(

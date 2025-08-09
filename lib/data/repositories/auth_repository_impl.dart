@@ -10,9 +10,11 @@ import 'package:flutter_boilerplate/core/services/storage_service.dart';
 import 'package:flutter_boilerplate/data/models/auth/login_request.dart';
 import 'package:flutter_boilerplate/data/models/auth/login_response.dart';
 import 'package:flutter_boilerplate/data/models/auth/user_model.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart';
+import 'package:flutter_boilerplate/domain/entities/user.dart' as entity;
 import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase/supabase.dart' hide User;
+import 'package:flutter_boilerplate/core/services/supabase_service.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final ApiClient apiClient;
@@ -26,7 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<Either<Failure, User>> login({
+  Future<Either<Failure, entity.User>> login({
     required String email,
     required String password,
     bool rememberMe = false,
@@ -58,7 +60,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await storageService.set(
           AppConstants.userKey, loginResponse.user.toJson());
 
-      return Right(loginResponse.user.toEntity());
+      return Right(loginResponse.user.toEntity() as entity.User);
     } on UnauthorizedException catch (e) {
       return Left(AuthFailure(message: e.message));
     } on ValidationException catch (e) {
@@ -79,7 +81,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> register({
+  Future<Either<Failure, entity.User>> register({
     required String name,
     required String email,
     required String password,
@@ -113,7 +115,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await storageService.set(
           AppConstants.userKey, loginResponse.user.toJson());
 
-      return Right(loginResponse.user.toEntity());
+      return Right(loginResponse.user.toEntity() as entity.User);
     } on ValidationException catch (e) {
       return Left(ValidationFailure(
         message: e.message,
@@ -208,7 +210,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User?>> getCurrentUser() async {
+  Future<Either<Failure, entity.User?>> getCurrentUser() async {
     try {
       final userJson = await storageService.get(AppConstants.userKey);
 
@@ -219,7 +221,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // If userJson is a string, parse it to a Map
       final userMap = userJson is String ? json.decode(userJson) : userJson;
       final userModel = UserModel.fromJson(userMap);
-      return Right(userModel.toEntity());
+      return Right(userModel.toEntity() as entity.User);
     } on CacheException catch (e) {
       return Left(CacheFailure(message: e.message));
     } catch (e) {
@@ -249,7 +251,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> signInWithGoogle() async {
+  Future<Either<Failure, entity.User>> signInWithGoogle() async {
     try {
       if (!await networkInfo.isConnected) {
         return const Left(NetworkFailure(
@@ -275,26 +277,47 @@ class AuthRepositoryImpl implements AuthRepository {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      // For now, we'll create a mock user based on Google account info
-      // In a real implementation, you would send the Google ID token to your backend
-      // to authenticate the user and get user details
+      // Sign in with Supabase using Google ID token
+      final response =
+          await SupabaseService.instance.client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: googleAuth.idToken ?? '',
+        accessToken: googleAuth.accessToken,
+      );
+
+      if (response.user == null) {
+        return Left(
+            AuthFailure(message: 'Failed to authenticate with Supabase'));
+      }
+
+      // Create user model from Supabase user data
       final UserModel user = UserModel(
-        id: googleUser.id,
-        name: googleUser.displayName ?? 'Google User',
-        email: googleUser.email,
-        profileImage: googleUser.photoUrl,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        id: response.user!.id,
+        name: response.user!.userMetadata?['name'] ??
+            response.user!.email ??
+            'Google User',
+        email: response.user!.email ?? '',
+        profileImage: response.user!.userMetadata?['picture'],
+        createdAt: response.user!.createdAt is DateTime
+            ? response.user!.createdAt as DateTime
+            : DateTime.now(),
+        updatedAt: response.user!.updatedAt is DateTime
+            ? response.user!.updatedAt as DateTime
+            : DateTime.now(),
       );
 
       // Save user data
       await storageService.set(AppConstants.userKey, user.toJson());
 
-      // For a real implementation, you would also save an authentication token
-      // For now, we'll just save a mock token
-      await storageService.set(AppConstants.tokenKey, 'google_auth_token');
+      // Save Supabase token
+      if (response.session?.accessToken != null) {
+        await storageService.set(
+            AppConstants.tokenKey, response.session!.accessToken);
+      }
 
       return Right(user.toEntity());
+    } on AuthApiException catch (e) {
+      return Left(AuthFailure(message: e.message));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } catch (e) {

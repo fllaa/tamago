@@ -46,6 +46,9 @@ dependencies:
   google_sign_in: ^6.2.2
   lucide_icons_flutter: ^3.0.8
   
+  # Supabase
+  supabase: ^2.6.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

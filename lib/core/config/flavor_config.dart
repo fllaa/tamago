@@ -8,6 +8,8 @@ class FlavorConfig {
   final String name;
   final String baseUrl;
   final String assetBaseUrl;
+  final String supabaseUrl;
+  final String supabaseAnonKey;
 
   static FlavorConfig? _instance;
 
@@ -16,12 +18,16 @@ class FlavorConfig {
     required String name,
     required String baseUrl,
     required String assetBaseUrl,
+    String? supabaseUrl,
+    String? supabaseAnonKey,
   }) {
     _instance ??= FlavorConfig._internal(
       flavor: flavor,
       name: name,
       baseUrl: baseUrl,
       assetBaseUrl: assetBaseUrl,
+      supabaseUrl: supabaseUrl ?? '',
+      supabaseAnonKey: supabaseAnonKey ?? '',
     );
     return _instance!;
   }
@@ -31,6 +37,8 @@ class FlavorConfig {
     required this.name,
     required this.baseUrl,
     required this.assetBaseUrl,
+    required this.supabaseUrl,
+    required this.supabaseAnonKey,
   });
 
   static FlavorConfig get instance {
