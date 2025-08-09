@@ -40,6 +40,8 @@
   "passwordsDoNotMatch": "Passwords do not match",
   "invalidPhoneNumber": "Please enter a valid phone number",
   "home": "Home",
+  "collections": "Collections", 
+  "explore": "Explore",
   "categories": "Categories",
   "popularProducts": "Popular Products",
   "newArrivals": "New Arrivals",

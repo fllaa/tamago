@@ -7,6 +7,7 @@ import 'package:flutter_boilerplate/presentation/pages/home/widgets/product_card
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,8 +21,8 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const HomeContent(),
-    Center(child: Text('Categories')),
-    Center(child: Text('Cart')),
+    Center(child: Text('Collections')),
+    Center(child: Text('Explore')),
     BlocProvider(
       create: (context) => GetIt.I<ProfileViewModel>()..loadUserProfile(),
       child: const ProfilePage(),
@@ -43,23 +44,23 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: _onItemTapped,
         destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+            icon: Icon(LucideIcons.house),
+            selectedIcon: Icon(LucideIcons.house200),
             label: AppLocalizations.of(context).translate('home'),
           ),
           NavigationDestination(
-            icon: Icon(Icons.category_outlined),
-            selectedIcon: Icon(Icons.category),
-            label: AppLocalizations.of(context).translate('categories'),
+            icon: Icon(LucideIcons.libraryBig),
+            selectedIcon: Icon(LucideIcons.libraryBig200),
+            label: AppLocalizations.of(context).translate('collections'),
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_cart_outlined),
-            selectedIcon: Icon(Icons.shopping_cart),
-            label: AppLocalizations.of(context).translate('cart'),
+            icon: Icon(LucideIcons.compass),
+            selectedIcon: Icon(LucideIcons.compass200),
+            label: AppLocalizations.of(context).translate('explore'),
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: Icon(LucideIcons.user),
+            selectedIcon: Icon(LucideIcons.user200),
             label: AppLocalizations.of(context).translate('profile'),
           ),
         ],
