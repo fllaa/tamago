@@ -12,7 +12,20 @@
           "package_name": "com.tachyons.tamago.dev"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "196098228595-509j6uarj6vm53f9f4pss87up3atejvm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tachyons.tamago.dev",
+            "certificate_hash": "a12b5fa62c7f7761e450c3e045b2ff2afb3fc435"
+          }
+        },
+        {
+          "client_id": "196098228595-6ml59dd9r3go7pnb10kdksa1jkejqbml.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCS1bUl-pX2VzHhDJM3XCF4JcTUpSpRE4k"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196098228595-6ml59dd9r3go7pnb10kdksa1jkejqbml.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
