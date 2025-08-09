@@ -306,26 +306,33 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         onPressed: () {
+                          final profileContext =
+                              context; // Capture the context with access to the provider
                           showDialog(
                             context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text(AppLocalizations.of(context)
+                            builder: (dialogContext) => AlertDialog(
+                              title: Text(AppLocalizations.of(dialogContext)
                                   .translate('logout')),
-                              content: Text(AppLocalizations.of(context)
+                              content: Text(AppLocalizations.of(dialogContext)
                                   .translate('logoutConfirmation')),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(AppLocalizations.of(context)
+                                  onPressed: () => Navigator.pop(dialogContext),
+                                  child: Text(AppLocalizations.of(dialogContext)
                                       .translate('cancel')),
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.pop(context);
-                                    Navigator.pushReplacementNamed(
-                                        context, AppRoutes.login);
+                                    Navigator.pop(dialogContext);
+                                    profileContext
+                                        .read<ProfileViewModel>()
+                                        .logout()
+                                        .then((_) {
+                                      Navigator.pushReplacementNamed(
+                                          profileContext, AppRoutes.login);
+                                    });
                                   },
-                                  child: Text(AppLocalizations.of(context)
+                                  child: Text(AppLocalizations.of(dialogContext)
                                       .translate('logout')),
                                 ),
                               ],
@@ -351,7 +358,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
           }
 
           // Default state
-          return const Center(child: Text('Unknown state'));
+          return const Center(child: Text(''));
         },
       ),
     );

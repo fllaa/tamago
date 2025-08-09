@@ -7,6 +7,7 @@ import 'package:flutter_boilerplate/data/repositories/auth_repository_impl.dart'
 import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/login_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/auth/logout_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/sign_in_with_google_usecase.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
@@ -66,6 +67,10 @@ Future<void> init() async {
     GetCurrentUserUseCase(getIt<AuthRepository>()),
   );
 
+  getIt.registerSingleton<LogoutUseCase>(
+    LogoutUseCase(getIt<AuthRepository>()),
+  );
+
   // ViewModels
   getIt.registerFactory<LoginViewModel>(
     () => LoginViewModel(loginUseCase: getIt<LoginUseCase>()),
@@ -80,6 +85,7 @@ Future<void> init() async {
   getIt.registerFactory<ProfileViewModel>(
     () => ProfileViewModel(
       getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+      logoutUseCase: getIt<LogoutUseCase>(),
     ),
   );
 }
