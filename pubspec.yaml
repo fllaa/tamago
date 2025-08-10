@@ -45,6 +45,7 @@ dependencies:
   dartz: ^0.10.1
   google_sign_in: ^6.2.2
   lucide_icons_flutter: ^3.0.8
+  palette_generator: ^0.3.3
   
   # Supabase
   supabase: ^2.6.0

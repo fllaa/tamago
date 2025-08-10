@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/app/routes/app_routes.dart';
 import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/category_slider.dart';
-import 'package:flutter_boilerplate/presentation/pages/home/widgets/product_card.dart';
+import 'package:flutter_boilerplate/presentation/pages/home/widgets/hero_banner.dart';
+import 'package:flutter_boilerplate/presentation/pages/home/widgets/movie_row.dart';
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
@@ -42,6 +43,8 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
+        backgroundColor: const Color(0xFF141414), // Netflix dark background
+        indicatorColor: Colors.transparent, // Remove default indicator
         destinations: [
           NavigationDestination(
             icon: Icon(LucideIcons.house),
@@ -64,6 +67,7 @@ class _HomePageState extends State<HomePage> {
             label: AppLocalizations.of(context).translate('profile'),
           ),
         ],
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
     );
   }
@@ -74,259 +78,196 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mock data
-    final categories = [
-      {'name': 'Electronics', 'icon': Icons.devices},
-      {'name': 'Clothing', 'icon': Icons.checkroom},
-      {'name': 'Groceries', 'icon': Icons.local_grocery_store},
-      {'name': 'Home', 'icon': Icons.home},
-      {'name': 'Beauty', 'icon': Icons.face},
+    // Mock data for movie genres
+    final genres = [
+      {'name': 'Action', 'icon': Icons.flash_on},
+      {'name': 'Comedy', 'icon': Icons.emoji_emotions},
+      {'name': 'Drama', 'icon': Icons.theater_comedy},
+      {'name': 'Horror', 'icon': Icons.dark_mode},
+      {'name': 'Romance', 'icon': Icons.favorite},
+      {'name': 'Sci-Fi', 'icon': Icons.auto_fix_high},
     ];
 
-    final products = [
+    // Mock data for featured movies
+    final featuredMovies = [
       {
         'id': '1',
-        'name': 'Wireless Headphones',
-        'price': 99.99,
+        'title': 'Stranger Things',
         'image':
             'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'discount': 15,
+        'rating': 4.8,
+        'year': 2023,
       },
       {
         'id': '2',
-        'name': 'Smart Watch',
-        'price': 199.99,
+        'title': 'The Crown',
         'image':
             'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.6,
+        'year': 2022,
       },
       {
         'id': '3',
-        'name': 'Laptop Pro',
-        'price': 1299.99,
+        'title': 'Money Heist',
         'image':
             'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'discount': 10,
+        'rating': 4.9,
+        'year': 2021,
       },
       {
         'id': '4',
-        'name': 'Smartphone X',
-        'price': 899.99,
+        'title': 'Breaking Bad',
         'image':
             'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.7,
+        'year': 2020,
       },
     ];
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // App Bar
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search products...',
-                          prefixIcon: Icon(Icons.search),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.notifications_outlined),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    // Mock data for trending movies
+    final trendingMovies = [
+      {
+        'id': '5',
+        'title': 'The Witcher',
+        'image':
+            'https://images.pexels.com/photos/3992656/pexels-photo-3992656.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.5,
+        'year': 2023,
+      },
+      {
+        'id': '6',
+        'title': 'Game of Thrones',
+        'image':
+            'https://images.pexels.com/photos/2589822/pexels-photo-2589822.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.8,
+        'year': 2019,
+      },
+      {
+        'id': '7',
+        'title': 'The Mandalorian',
+        'image':
+            'https://images.pexels.com/photos/3348356/pexels-photo-3348356.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.6,
+        'year': 2022,
+      },
+      {
+        'id': '8',
+        'title': 'Black Mirror',
+        'image':
+            'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.4,
+        'year': 2021,
+      },
+    ];
 
-            // Promotional Banner
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                height: 170,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.secondary,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
+    // Mock data for new releases
+    final newReleases = [
+      {
+        'id': '9',
+        'title': 'House of the Dragon',
+        'image':
+            'https://images.pexels.com/photos/1303086/pexels-photo-1303086.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.7,
+        'year': 2023,
+      },
+      {
+        'id': '10',
+        'title': 'The Lord of the Rings',
+        'image':
+            'https://images.pexels.com/photos/3965545/pexels-photo-3965545.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.9,
+        'year': 2022,
+      },
+      {
+        'id': '11',
+        'title': 'The Matrix Resurrections',
+        'image':
+            'https://images.pexels.com/photos/1195145/pexels-photo-1195145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.3,
+        'year': 2021,
+      },
+      {
+        'id': '12',
+        'title': 'Eternals',
+        'image':
+            'https://images.pexels.com/photos/3811041/pexels-photo-3811041.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'rating': 4.2,
+        'year': 2021,
+      },
+    ];
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Hero Banner
+          HeroBanner(
+            movies: [
+              {
+                'title': 'Stranger Things',
+                'description':
+                    'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.',
+                'image':
+                    'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+              },
+              {
+                'title': 'The Crown',
+                'description':
+                    'The reign of Queen Elizabeth II and the events that shaped the second half of the 20th century.',
+                'image':
+                    'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+              },
+              {
+                'title': 'Money Heist',
+                'description':
+                    'An unusual group of robbers attempt to carry out the most perfect robbery in Spanish history.',
+                'image':
+                    'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+              },
+            ],
+          ),
+
+          // Categories/Genres
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Genres',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.width *
+                            0.045, // Responsive font size
+                      ),
                 ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -20,
-                      bottom: -20,
-                      child: CircleAvatar(
-                        radius: 100,
-                        backgroundColor: Colors.white.withOpacity(0.1),
-                      ),
-                    ),
-                    Positioned(
-                      left: -30,
-                      top: -30,
-                      child: CircleAvatar(
-                        radius: 80,
-                        backgroundColor: Colors.white.withOpacity(0.1),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Summer Sale',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Up to 50% off',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                            ),
-                            child: const Text('Shop Now'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                TextButton(
+                  onPressed: () {},
+                  child: const Text('View All'),
                 ),
-              ),
+              ],
             ),
+          ),
+          CategorySlider(genres: genres),
 
-            // Categories
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context).translate('categories'),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child:
-                        Text(AppLocalizations.of(context).translate('viewAll')),
-                  ),
-                ],
-              ),
-            ),
-            CategorySlider(categories: categories),
+          // Trending Movies Row
+          MovieRow(
+            title: 'Trending Now',
+            movies: trendingMovies,
+          ),
 
-            // Popular Products
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context).translate('popularProducts'),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.productList);
-                    },
-                    child:
-                        Text(AppLocalizations.of(context).translate('viewAll')),
-                  ),
-                ],
-              ),
-            ),
+          // New Releases Row
+          MovieRow(
+            title: 'New Releases',
+            movies: newReleases,
+          ),
 
-            // Product Grid
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.7,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return ProductCard(
-                    id: product['id'] as String,
-                    name: product['name'] as String,
-                    price: product['price'] as double,
-                    imageUrl: product['image'] as String,
-                    discount: product['discount'] as int?,
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          // Featured Movies Row
+          MovieRow(
+            title: 'Featured',
+            movies: featuredMovies,
+          ),
+        ],
       ),
     );
   }
