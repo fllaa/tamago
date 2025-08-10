@@ -15,7 +15,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver {
-  bool _isDarkMode = false;
+  bool _isDarkMode = true;
   bool _notificationsEnabled = true;
 
   @override
