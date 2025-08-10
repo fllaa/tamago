@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'dart:async';
+import 'package:jikan_api_v4/jikan_api_v4.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HeroBanner extends StatefulWidget {
-  final List<Map<String, dynamic>> movies;
+  final List<Anime>? movies;
 
   const HeroBanner({
     super.key,
-    required this.movies,
+    this.movies,
   });
 
   @override
@@ -24,18 +26,23 @@ class _HeroBannerState extends State<HeroBanner> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    // Start at a large index to enable infinite scrolling
+    final initialPage = (widget.movies?.length ?? 0) * 500;
+    _pageController = PageController(initialPage: initialPage);
+    _currentPage = initialPage;
     _updateDominantColor();
     _startAutoScroll();
   }
 
   Future<void> _updateDominantColor() async {
-    if (widget.movies.isEmpty) return;
+    if (widget.movies == null || widget.movies!.isEmpty) return;
 
     try {
-      final currentMovie = widget.movies[_currentPage];
+      final actualIndex = _currentPage % (widget.movies?.length ?? 1);
+      final currentMovie = widget.movies![actualIndex];
       final paletteGenerator = await PaletteGenerator.fromImageProvider(
-        NetworkImage(currentMovie['image'] as String),
+        CachedNetworkImageProvider(currentMovie.imageUrl ??
+            ''), // Using null-aware operator as fallback
       );
       setState(() {
         _dominantColor = paletteGenerator.dominantColor?.color;
@@ -52,7 +59,7 @@ class _HeroBannerState extends State<HeroBanner> {
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (_pageController.hasClients) {
         setState(() {
-          _currentPage = (_currentPage + 1) % widget.movies.length;
+          _currentPage = _currentPage + 1;
           _pageController.animateToPage(
             _currentPage,
             duration: const Duration(milliseconds: 500),
@@ -73,7 +80,18 @@ class _HeroBannerState extends State<HeroBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.movies.isEmpty) {
+    if (widget.movies == null) {
+      // Show loading indicator when data is being fetched
+      return SizedBox(
+        height:
+            MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (widget.movies!.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -101,13 +119,14 @@ class _HeroBannerState extends State<HeroBanner> {
           });
           _updateDominantColor();
         },
-        itemCount: widget.movies.length,
+        itemCount: (widget.movies?.length ?? 0) * 1000,
         itemBuilder: (context, index) {
-          final movie = widget.movies[index];
+          final actualIndex = index % (widget.movies?.length ?? 1);
+          final movie = widget.movies![actualIndex];
           return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage(movie['image'] as String),
+                image: CachedNetworkImageProvider(movie.imageUrl ?? ''),
                 fit: BoxFit.cover,
               ),
             ),
@@ -131,7 +150,7 @@ class _HeroBannerState extends State<HeroBanner> {
                   children: [
                     // Title
                     Text(
-                      movie['title'] as String,
+                      movie.title,
                       style:
                           Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 color: Colors.white,
@@ -139,16 +158,20 @@ class _HeroBannerState extends State<HeroBanner> {
                                 fontSize: MediaQuery.of(context).size.width *
                                     0.07, // Responsive font size
                               ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
                     // Description
                     Text(
-                      movie['description'] as String? ?? '',
+                      movie.synopsis ?? '',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: MediaQuery.of(context).size.width *
                                 0.035, // Responsive font size
                           ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 24),
                     // Action buttons

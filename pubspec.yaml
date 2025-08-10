@@ -49,6 +49,9 @@ dependencies:
   
   # Supabase
   supabase: ^2.6.0
+
+  # Jikan API
+  jikan_api_v4: ^2.2.2
   
 dev_dependencies:
   flutter_test:

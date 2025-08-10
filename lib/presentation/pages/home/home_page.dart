@@ -7,6 +7,8 @@ import 'package:flutter_boilerplate/presentation/pages/home/widgets/hero_banner.
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/movie_row.dart';
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
+import 'package:flutter_boilerplate/core/services/anime_service.dart';
+import 'package:jikan_api_v4/jikan_api_v4.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -73,8 +75,38 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
+
+  @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  List<Anime> _animeList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAnimeData();
+  }
+
+  Future<void> _fetchAnimeData() async {
+    try {
+      final animeService = AnimeService.instance;
+      final animeList = await animeService.getSeasonNow();
+      setState(() {
+        _animeList = animeList;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Handle error
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -202,29 +234,7 @@ class HomeContent extends StatelessWidget {
         children: [
           // Hero Banner
           HeroBanner(
-            movies: [
-              {
-                'title': 'Stranger Things',
-                'description':
-                    'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.',
-                'image':
-                    'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-              },
-              {
-                'title': 'The Crown',
-                'description':
-                    'The reign of Queen Elizabeth II and the events that shaped the second half of the 20th century.',
-                'image':
-                    'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-              },
-              {
-                'title': 'Money Heist',
-                'description':
-                    'An unusual group of robbers attempt to carry out the most perfect robbery in Spanish history.',
-                'image':
-                    'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-              },
-            ],
+            movies: _isLoading ? null : _animeList,
           ),
 
           // Categories/Genres
