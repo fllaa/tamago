@@ -52,4 +52,15 @@ class AnimeService {
       return [];
     }
   }
+
+  // Get anime by mal_id
+  Future<Anime?> getAnime(int malId) async {
+    try {
+      final response = await _jikan.getAnime(malId);
+      return response;
+    } catch (e) {
+      // Return null if there's an error
+      return null;
+    }
+  }
 }

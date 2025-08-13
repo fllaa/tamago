@@ -102,6 +102,7 @@ class _HomeContentState extends State<HomeContent> {
       });
     } catch (e) {
       // Handle error
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });

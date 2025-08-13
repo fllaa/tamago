@@ -4,6 +4,7 @@ import 'package:palette_generator/palette_generator.dart';
 import 'dart:async';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_boilerplate/presentation/pages/anime/anime_detail_page.dart';
 
 class HeroBanner extends StatefulWidget {
   final List<Anime>? movies;
@@ -44,20 +45,24 @@ class _HeroBannerState extends State<HeroBanner> {
         CachedNetworkImageProvider(currentMovie.imageUrl ??
             ''), // Using null-aware operator as fallback
       );
-      setState(() {
-        _dominantColor = paletteGenerator.dominantColor?.color;
-      });
+      if (mounted) {
+        setState(() {
+          _dominantColor = paletteGenerator.dominantColor?.color;
+        });
+      }
     } catch (e) {
       // If we can't get the dominant color, default to white
-      setState(() {
-        _dominantColor = Colors.white;
-      });
+      if (mounted) {
+        setState(() {
+          _dominantColor = Colors.white;
+        });
+      }
     }
   }
 
   void _startAutoScroll() {
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      if (_pageController.hasClients) {
+      if (_pageController.hasClients && mounted) {
         setState(() {
           _currentPage = _currentPage + 1;
           _pageController.animateToPage(
@@ -114,10 +119,12 @@ class _HeroBannerState extends State<HeroBanner> {
       child: PageView.builder(
         controller: _pageController,
         onPageChanged: (index) {
-          setState(() {
-            _currentPage = index;
-          });
-          _updateDominantColor();
+          if (mounted) {
+            setState(() {
+              _currentPage = index;
+            });
+            _updateDominantColor();
+          }
         },
         itemCount: (widget.movies?.length ?? 0) * 1000,
         itemBuilder: (context, index) {
@@ -213,7 +220,15 @@ class _HeroBannerState extends State<HeroBanner> {
                         // More info button
                         OutlinedButton(
                           onPressed: () {
-                            // More info action
+                            // Navigate to anime detail page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AnimeDetailPage(
+                                  malId: movie.malId,
+                                ),
+                              ),
+                            );
                           },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.white),
