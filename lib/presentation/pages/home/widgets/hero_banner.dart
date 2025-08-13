@@ -23,6 +23,7 @@ class _HeroBannerState extends State<HeroBanner> {
   int _currentPage = 0;
   late PageController _pageController;
   late Timer _timer;
+  Timer? _colorUpdateTimer;
 
   @override
   void initState() {
@@ -71,7 +72,12 @@ class _HeroBannerState extends State<HeroBanner> {
             curve: Curves.easeInOut,
           );
         });
-        _updateDominantColor();
+        // Update color after auto-scroll completes
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) {
+            _updateDominantColor();
+          }
+        });
       }
     });
   }
@@ -79,6 +85,7 @@ class _HeroBannerState extends State<HeroBanner> {
   @override
   void dispose() {
     _timer.cancel();
+    _colorUpdateTimer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -115,15 +122,24 @@ class _HeroBannerState extends State<HeroBanner> {
     );
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+      height: MediaQuery.of(context).size.height * 0.33, // 33% of screen height
       child: PageView.builder(
         controller: _pageController,
         onPageChanged: (index) {
           if (mounted) {
-            setState(() {
-              _currentPage = index;
-            });
-            _updateDominantColor();
+            // Only update state if the page actually changed
+            if (_currentPage != index) {
+              setState(() {
+                _currentPage = index;
+              });
+              // Debounce color updates to prevent lag during swiping
+              _colorUpdateTimer?.cancel();
+              _colorUpdateTimer = Timer(const Duration(milliseconds: 600), () {
+                if (mounted) {
+                  _updateDominantColor();
+                }
+              });
+            }
           }
         },
         itemCount: (widget.movies?.length ?? 0) * 1000,
@@ -159,11 +175,11 @@ class _HeroBannerState extends State<HeroBanner> {
                     Text(
                       movie.title,
                       style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: MediaQuery.of(context).size.width *
-                                    0.07, // Responsive font size
+                                    0.05, // Responsive font size
                               ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -172,10 +188,10 @@ class _HeroBannerState extends State<HeroBanner> {
                     // Description
                     Text(
                       movie.synopsis ?? '',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: MediaQuery.of(context).size.width *
-                                0.035, // Responsive font size
+                                0.030, // Responsive font size
                           ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
@@ -203,13 +219,13 @@ class _HeroBannerState extends State<HeroBanner> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.play_arrow, size: 24),
+                              Icon(Icons.play_arrow, size: 18),
                               SizedBox(width: 8),
                               Text(
                                 'Play',
                                 style: TextStyle(
                                   fontSize: MediaQuery.of(context).size.width *
-                                      0.035, // Responsive font size
+                                      0.030, // Responsive font size
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -244,14 +260,14 @@ class _HeroBannerState extends State<HeroBanner> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.info_outline,
-                                  color: Colors.white, size: 24),
+                                  color: Colors.white, size: 18),
                               SizedBox(width: 8),
                               Text(
                                 'More Info',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: MediaQuery.of(context).size.width *
-                                      0.035, // Responsive font size
+                                      0.030, // Responsive font size
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
