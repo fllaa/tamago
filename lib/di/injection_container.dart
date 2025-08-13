@@ -5,11 +5,14 @@ import 'package:flutter_boilerplate/core/network/network_info.dart';
 import 'package:flutter_boilerplate/core/services/storage_service.dart';
 import 'package:flutter_boilerplate/core/services/supabase_service.dart';
 import 'package:flutter_boilerplate/data/repositories/auth_repository_impl.dart';
+import 'package:flutter_boilerplate/data/repositories/genre_repository_impl.dart';
 import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
+import 'package:flutter_boilerplate/domain/repositories/genre_repository.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/login_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/logout_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/sign_in_with_google_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/get_highlighted_genres_usecase.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
@@ -60,9 +63,18 @@ Future<void> init() async {
     ),
   );
 
+  // Repositories
+  getIt.registerSingleton<GenreRepository>(
+    GenreRepositoryImpl(supabaseService: getIt<SupabaseService>()),
+  );
+
   // Use cases
   getIt.registerSingleton<LoginUseCase>(
     LoginUseCase(getIt<AuthRepository>()),
+  );
+
+  getIt.registerSingleton<GetHighlightedGenresUseCase>(
+    GetHighlightedGenresUseCase(repository: getIt<GenreRepository>()),
   );
 
   getIt.registerSingleton<SignInWithGoogleUseCase>(

@@ -28,13 +28,6 @@ class MovieCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -129,7 +122,6 @@ class MovieCard extends StatelessWidget {
                         title,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
                               fontSize: constraints.maxWidth *
                                   0.09, // Responsive font size
                             ),
@@ -143,7 +135,6 @@ class MovieCard extends StatelessWidget {
                           '$year',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[400],
                                     fontSize: constraints.maxWidth *
                                         0.07, // Responsive font size
                                   ),

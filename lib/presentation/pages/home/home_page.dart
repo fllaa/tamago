@@ -8,6 +8,8 @@ import 'package:flutter_boilerplate/presentation/pages/home/widgets/movie_row.da
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:flutter_boilerplate/core/services/anime_service.dart';
+import 'package:flutter_boilerplate/domain/entities/genre.dart' as app_genre;
+import 'package:flutter_boilerplate/domain/usecases/get_highlighted_genres_usecase.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -45,7 +47,6 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        backgroundColor: const Color(0xFF141414), // Netflix dark background
         indicatorColor: Colors.transparent, // Remove default indicator
         destinations: [
           NavigationDestination(
@@ -84,12 +85,15 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   List<Anime> _animeList = [];
+  List<app_genre.Genre> _genres = [];
   bool _isLoading = true;
+  bool _isGenresLoading = true;
 
   @override
   void initState() {
     super.initState();
     _fetchAnimeData();
+    _fetchGenres();
   }
 
   Future<void> _fetchAnimeData() async {
@@ -109,18 +113,28 @@ class _HomeContentState extends State<HomeContent> {
     }
   }
 
+  Future<void> _fetchGenres() async {
+    try {
+      final getHighlightedGenresUseCase =
+          GetIt.I<GetHighlightedGenresUseCase>();
+      final genres = await getHighlightedGenresUseCase();
+      if (mounted) {
+        setState(() {
+          _genres = genres;
+          _isGenresLoading = false;
+        });
+      }
+    } catch (e) {
+      // Handle error
+      if (!mounted) return;
+      setState(() {
+        _isGenresLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Mock data for movie genres
-    final genres = [
-      {'name': 'Action', 'icon': Icons.flash_on},
-      {'name': 'Comedy', 'icon': Icons.emoji_emotions},
-      {'name': 'Drama', 'icon': Icons.theater_comedy},
-      {'name': 'Horror', 'icon': Icons.dark_mode},
-      {'name': 'Romance', 'icon': Icons.favorite},
-      {'name': 'Sci-Fi', 'icon': Icons.auto_fix_high},
-    ];
-
     // Mock data for featured movies
     final featuredMovies = [
       {
@@ -259,7 +273,9 @@ class _HomeContentState extends State<HomeContent> {
               ],
             ),
           ),
-          CategorySlider(genres: genres),
+          _isGenresLoading
+              ? const Center(child: CircularProgressIndicator())
+              : CategorySlider(genres: _genres),
 
           // Trending Movies Row
           MovieRow(
