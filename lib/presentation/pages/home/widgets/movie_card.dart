@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_boilerplate/presentation/pages/anime/anime_detail_page.dart';
 
 class MovieCard extends StatelessWidget {
-  final String id;
+  final int id;
   final String title;
   final String imageUrl;
   final double? rating;
@@ -20,9 +21,15 @@ class MovieCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to movie detail page
-        // For now, we'll just print the ID
-        print('Movie tapped: $id');
+        // Navigate to anime detail page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnimeDetailPage(
+              malId: id,
+            ),
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -65,7 +72,7 @@ class MovieCard extends StatelessWidget {
                         top: 8,
                         left: 8,
                         child: Container(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(4.0),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.primary,
                             borderRadius: BorderRadius.circular(4),
@@ -75,16 +82,16 @@ class MovieCard extends StatelessWidget {
                             children: [
                               const Icon(
                                 Icons.star,
-                                size: 12,
+                                size: 8,
                                 color: Colors.white,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 2),
                               Text(
                                 rating.toString(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 12,
+                                  fontSize: 8,
                                 ),
                               ),
                             ],
@@ -95,15 +102,15 @@ class MovieCard extends StatelessWidget {
                       top: 8,
                       right: 8,
                       child: Container(
-                        width: 32,
-                        height: 32,
+                        width: 24,
+                        height: 24,
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.5),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.play_arrow,
-                          size: 18,
+                          size: 12,
                           color: Colors.white,
                         ),
                       ),

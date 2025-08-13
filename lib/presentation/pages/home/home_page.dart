@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/app/routes/app_routes.dart';
 import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
+import 'package:flutter_boilerplate/domain/usecases/anime/get_season_now_animes_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/anime/get_top_animes_usecase.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/category_slider.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/hero_banner.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/movie_row.dart';
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
-import 'package:flutter_boilerplate/core/services/anime_service.dart';
 import 'package:flutter_boilerplate/domain/entities/genre.dart' as app_genre;
 import 'package:flutter_boilerplate/domain/usecases/get_highlighted_genres_usecase.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
@@ -84,31 +85,75 @@ class HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<HomeContent> {
-  List<Anime> _animeList = [];
+  List<Anime> _seasonNowAnimes = [];
+  List<Anime> _seasonUpcomingAnimes = [];
+  List<Anime> _topAnimes = [];
   List<app_genre.Genre> _genres = [];
-  bool _isLoading = true;
+  bool _isSeasonNowAnimesLoading = true;
+  bool _isSeasonUpcomingAnimesLoading = true;
   bool _isGenresLoading = true;
+  bool _isTopAnimesLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchAnimeData();
+    _fetchSeasonNowAnimes();
+    _fetchSeasonUpcomingAnimes();
+    _fetchTopAnimes();
     _fetchGenres();
   }
 
-  Future<void> _fetchAnimeData() async {
+  Future<void> _fetchSeasonNowAnimes() async {
     try {
-      final animeService = AnimeService.instance;
-      final animeList = await animeService.getSeasonNow();
+      final getSeasonNowAnimesUseCase = GetIt.I<GetSeasonNowAnimesUseCase>();
+      final animes = await getSeasonNowAnimesUseCase();
+      if (!mounted) return;
       setState(() {
-        _animeList = animeList;
-        _isLoading = false;
+        _seasonNowAnimes = animes;
+        _isSeasonNowAnimesLoading = false;
       });
     } catch (e) {
       // Handle error
       if (!mounted) return;
       setState(() {
-        _isLoading = false;
+        _isSeasonNowAnimesLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchTopAnimes() async {
+    try {
+      final getTopAnimesUseCase = GetIt.I<GetTopAnimesUseCase>();
+      final animes = await getTopAnimesUseCase();
+      if (!mounted) return;
+      setState(() {
+        _topAnimes = animes;
+        _isTopAnimesLoading = false;
+      });
+    } catch (e) {
+      // Handle error
+      if (!mounted) return;
+      setState(() {
+        _isTopAnimesLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchSeasonUpcomingAnimes() async {
+    try {
+      final getSeasonUpcomingAnimesUseCase =
+          GetIt.I<GetSeasonUpcomingAnimesUseCase>();
+      final animes = await getSeasonUpcomingAnimesUseCase();
+      if (!mounted) return;
+      setState(() {
+        _seasonUpcomingAnimes = animes;
+        _isSeasonUpcomingAnimesLoading = false;
+      });
+    } catch (e) {
+      // Handle error
+      if (!mounted) return;
+      setState(() {
+        _isSeasonUpcomingAnimesLoading = false;
       });
     }
   }
@@ -118,12 +163,11 @@ class _HomeContentState extends State<HomeContent> {
       final getHighlightedGenresUseCase =
           GetIt.I<GetHighlightedGenresUseCase>();
       final genres = await getHighlightedGenresUseCase();
-      if (mounted) {
-        setState(() {
-          _genres = genres;
-          _isGenresLoading = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _genres = genres;
+        _isGenresLoading = false;
+      });
     } catch (e) {
       // Handle error
       if (!mounted) return;
@@ -135,121 +179,13 @@ class _HomeContentState extends State<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    // Mock data for featured movies
-    final featuredMovies = [
-      {
-        'id': '1',
-        'title': 'Stranger Things',
-        'image':
-            'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.8,
-        'year': 2023,
-      },
-      {
-        'id': '2',
-        'title': 'The Crown',
-        'image':
-            'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.6,
-        'year': 2022,
-      },
-      {
-        'id': '3',
-        'title': 'Money Heist',
-        'image':
-            'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.9,
-        'year': 2021,
-      },
-      {
-        'id': '4',
-        'title': 'Breaking Bad',
-        'image':
-            'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.7,
-        'year': 2020,
-      },
-    ];
-
-    // Mock data for trending movies
-    final trendingMovies = [
-      {
-        'id': '5',
-        'title': 'The Witcher',
-        'image':
-            'https://images.pexels.com/photos/3992656/pexels-photo-3992656.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.5,
-        'year': 2023,
-      },
-      {
-        'id': '6',
-        'title': 'Game of Thrones',
-        'image':
-            'https://images.pexels.com/photos/2589822/pexels-photo-2589822.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.8,
-        'year': 2019,
-      },
-      {
-        'id': '7',
-        'title': 'The Mandalorian',
-        'image':
-            'https://images.pexels.com/photos/3348356/pexels-photo-3348356.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.6,
-        'year': 2022,
-      },
-      {
-        'id': '8',
-        'title': 'Black Mirror',
-        'image':
-            'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.4,
-        'year': 2021,
-      },
-    ];
-
-    // Mock data for new releases
-    final newReleases = [
-      {
-        'id': '9',
-        'title': 'House of the Dragon',
-        'image':
-            'https://images.pexels.com/photos/1303086/pexels-photo-1303086.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.7,
-        'year': 2023,
-      },
-      {
-        'id': '10',
-        'title': 'The Lord of the Rings',
-        'image':
-            'https://images.pexels.com/photos/3965545/pexels-photo-3965545.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.9,
-        'year': 2022,
-      },
-      {
-        'id': '11',
-        'title': 'The Matrix Resurrections',
-        'image':
-            'https://images.pexels.com/photos/1195145/pexels-photo-1195145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.3,
-        'year': 2021,
-      },
-      {
-        'id': '12',
-        'title': 'Eternals',
-        'image':
-            'https://images.pexels.com/photos/3811041/pexels-photo-3811041.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        'rating': 4.2,
-        'year': 2021,
-      },
-    ];
-
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Hero Banner
           HeroBanner(
-            movies: _isLoading ? null : _animeList,
+            movies: _isSeasonNowAnimesLoading ? null : _seasonNowAnimes,
           ),
 
           // Categories/Genres
@@ -277,23 +213,22 @@ class _HomeContentState extends State<HomeContent> {
               ? const Center(child: CircularProgressIndicator())
               : CategorySlider(genres: _genres),
 
-          // Trending Movies Row
+          // Top Anime Row
           MovieRow(
-            title: 'Trending Now',
-            movies: trendingMovies,
+            title: 'All-Time Top Anime',
+            movies: _isTopAnimesLoading ? null : _topAnimes,
           ),
 
-          // New Releases Row
+          SizedBox(height: 16),
+
+          // Upcoming Season Row
           MovieRow(
-            title: 'New Releases',
-            movies: newReleases,
+            title: 'Upcoming Season Anime',
+            movies:
+                _isSeasonUpcomingAnimesLoading ? null : _seasonUpcomingAnimes,
           ),
 
-          // Featured Movies Row
-          MovieRow(
-            title: 'Featured',
-            movies: featuredMovies,
-          ),
+          SizedBox(height: 16),
         ],
       ),
     );

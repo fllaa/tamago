@@ -2,12 +2,18 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_boilerplate/core/network/api_client.dart';
 import 'package:flutter_boilerplate/core/network/network_info.dart';
+import 'package:flutter_boilerplate/core/services/anime_service.dart';
 import 'package:flutter_boilerplate/core/services/storage_service.dart';
 import 'package:flutter_boilerplate/core/services/supabase_service.dart';
 import 'package:flutter_boilerplate/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_boilerplate/data/repositories/genre_repository_impl.dart';
+import 'package:flutter_boilerplate/data/repositories/anime_repository_impl.dart';
+import 'package:flutter_boilerplate/domain/repositories/anime_repository.dart';
 import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:flutter_boilerplate/domain/repositories/genre_repository.dart';
+import 'package:flutter_boilerplate/domain/usecases/anime/get_top_animes_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/anime/get_season_now_animes_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/login_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/logout_usecase.dart';
@@ -47,6 +53,11 @@ Future<void> init() async {
     SupabaseService.instance,
   );
 
+  // Anime Service
+  getIt.registerSingleton<AnimeService>(
+    AnimeService.instance,
+  );
+
   getIt.registerSingleton<ApiClient>(
     ApiClient(
       dio: getIt<Dio>(),
@@ -64,6 +75,10 @@ Future<void> init() async {
   );
 
   // Repositories
+  getIt.registerSingleton<AnimeRepository>(
+    AnimeRepositoryImpl(animeService: getIt<AnimeService>()),
+  );
+
   getIt.registerSingleton<GenreRepository>(
     GenreRepositoryImpl(supabaseService: getIt<SupabaseService>()),
   );
@@ -71,6 +86,18 @@ Future<void> init() async {
   // Use cases
   getIt.registerSingleton<LoginUseCase>(
     LoginUseCase(getIt<AuthRepository>()),
+  );
+
+  getIt.registerSingleton<GetTopAnimesUseCase>(
+    GetTopAnimesUseCase(repository: getIt<AnimeRepository>()),
+  );
+
+  getIt.registerSingleton<GetSeasonNowAnimesUseCase>(
+    GetSeasonNowAnimesUseCase(repository: getIt<AnimeRepository>()),
+  );
+
+  getIt.registerSingleton<GetSeasonUpcomingAnimesUseCase>(
+    GetSeasonUpcomingAnimesUseCase(repository: getIt<AnimeRepository>()),
   );
 
   getIt.registerSingleton<GetHighlightedGenresUseCase>(
