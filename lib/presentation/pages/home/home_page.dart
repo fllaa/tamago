@@ -1,17 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
-import 'package:flutter_boilerplate/domain/usecases/anime/get_season_now_animes_usecase.dart';
-import 'package:flutter_boilerplate/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
-import 'package:flutter_boilerplate/domain/usecases/anime/get_top_animes_usecase.dart';
+import 'package:flutter_boilerplate/presentation/viewmodels/home/home_bloc.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/category_slider.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/hero_banner.dart';
 import 'package:flutter_boilerplate/presentation/pages/home/widgets/movie_row.dart';
 import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
-import 'package:flutter_boilerplate/domain/entities/genre.dart' as app_genre;
-import 'package:flutter_boilerplate/domain/usecases/get_highlighted_genres_usecase.dart';
-import 'package:jikan_api_v4/jikan_api_v4.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -24,16 +20,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  late final HomeBloc _homeBloc;
+  late final List<Widget> _pages;
 
-  final List<Widget> _pages = [
-    const HomeContent(),
-    Center(child: Text('Collections')),
-    Center(child: Text('Explore')),
-    BlocProvider(
-      create: (context) => GetIt.I<ProfileViewModel>()..loadUserProfile(),
-      child: const ProfilePage(),
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _homeBloc = GetIt.I<HomeBloc>()..add(LoadHomeData());
+    _pages = [
+      BlocProvider.value(
+        value: _homeBloc,
+        child: const HomeContent(),
+      ),
+      Center(child: Text('Collections')),
+      Center(child: Text('Explore')),
+      BlocProvider(
+        create: (context) => GetIt.I<ProfileViewModel>()..loadUserProfile(),
+        child: const ProfilePage(),
+      ),
+    ];
+  }
+
+  @override
+  void dispose() {
+    _homeBloc.close();
+    super.dispose();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -77,160 +89,167 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class HomeContent extends StatefulWidget {
+class HomeContent extends StatelessWidget {
   const HomeContent({super.key});
 
   @override
-  State<HomeContent> createState() => _HomeContentState();
-}
-
-class _HomeContentState extends State<HomeContent> {
-  List<Anime> _seasonNowAnimes = [];
-  List<Anime> _seasonUpcomingAnimes = [];
-  List<Anime> _topAnimes = [];
-  List<app_genre.Genre> _genres = [];
-  bool _isSeasonNowAnimesLoading = true;
-  bool _isSeasonUpcomingAnimesLoading = true;
-  bool _isGenresLoading = true;
-  bool _isTopAnimesLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchSeasonNowAnimes();
-    _fetchSeasonUpcomingAnimes();
-    _fetchTopAnimes();
-    _fetchGenres();
-  }
-
-  Future<void> _fetchSeasonNowAnimes() async {
-    try {
-      final getSeasonNowAnimesUseCase = GetIt.I<GetSeasonNowAnimesUseCase>();
-      final animes = await getSeasonNowAnimesUseCase();
-      if (!mounted) return;
-      setState(() {
-        _seasonNowAnimes = animes;
-        _isSeasonNowAnimesLoading = false;
-      });
-    } catch (e) {
-      // Handle error
-      if (!mounted) return;
-      setState(() {
-        _isSeasonNowAnimesLoading = false;
-      });
-    }
-  }
-
-  Future<void> _fetchTopAnimes() async {
-    try {
-      final getTopAnimesUseCase = GetIt.I<GetTopAnimesUseCase>();
-      final animes = await getTopAnimesUseCase();
-      if (!mounted) return;
-      setState(() {
-        _topAnimes = animes;
-        _isTopAnimesLoading = false;
-      });
-    } catch (e) {
-      // Handle error
-      if (!mounted) return;
-      setState(() {
-        _isTopAnimesLoading = false;
-      });
-    }
-  }
-
-  Future<void> _fetchSeasonUpcomingAnimes() async {
-    try {
-      final getSeasonUpcomingAnimesUseCase =
-          GetIt.I<GetSeasonUpcomingAnimesUseCase>();
-      final animes = await getSeasonUpcomingAnimesUseCase();
-      if (!mounted) return;
-      setState(() {
-        _seasonUpcomingAnimes = animes;
-        _isSeasonUpcomingAnimesLoading = false;
-      });
-    } catch (e) {
-      // Handle error
-      if (!mounted) return;
-      setState(() {
-        _isSeasonUpcomingAnimesLoading = false;
-      });
-    }
-  }
-
-  Future<void> _fetchGenres() async {
-    try {
-      final getHighlightedGenresUseCase =
-          GetIt.I<GetHighlightedGenresUseCase>();
-      final genres = await getHighlightedGenresUseCase();
-      if (!mounted) return;
-      setState(() {
-        _genres = genres;
-        _isGenresLoading = false;
-      });
-    } catch (e) {
-      // Handle error
-      if (!mounted) return;
-      setState(() {
-        _isGenresLoading = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hero Banner
-          HeroBanner(
-            movies: _isSeasonNowAnimesLoading ? null : _seasonNowAnimes,
-          ),
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if (state is HomeInitial || state is HomeLoading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
 
-          // Categories/Genres
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        if (state is HomeError && !state.hasCachedData) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Genres',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: MediaQuery.of(context).size.width *
-                            0.045, // Responsive font size
-                      ),
+                  'Error: ${state.message}',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('View All'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<HomeBloc>().add(RefreshHomeData());
+                  },
+                  child: const Text('Retry'),
                 ),
               ],
             ),
+          );
+        }
+
+        // Show data from either HomeLoaded or HomeError with cached data
+        final seasonNowAnimes = state is HomeLoaded
+            ? state.seasonNowAnimes
+            : (state as HomeError).cachedSeasonNowAnimes ?? [];
+        final seasonUpcomingAnimes = state is HomeLoaded
+            ? state.seasonUpcomingAnimes
+            : (state as HomeError).cachedSeasonUpcomingAnimes ?? [];
+        final topAnimes = state is HomeLoaded
+            ? state.topAnimes
+            : (state as HomeError).cachedTopAnimes ?? [];
+        final genres = state is HomeLoaded
+            ? state.genres
+            : (state as HomeError).cachedGenres ?? [];
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            final completer = Completer<void>();
+            final bloc = context.read<HomeBloc>();
+            
+            // Listen for state changes to complete the refresh
+            late StreamSubscription subscription;
+            subscription = bloc.stream.listen((state) {
+              if (state is HomeLoaded || state is HomeError) {
+                subscription.cancel();
+                completer.complete();
+              }
+            });
+            
+            bloc.add(RefreshHomeData());
+            return completer.future;
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Show cache indicator if data is from cache
+                if (state is HomeLoaded && state.isFromCache)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(8.0, 40.0, 8.0, 8.0),
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.cached, size: 16, color: Colors.blue),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Showing cached data',
+                          style: TextStyle(color: Colors.blue, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Show error banner if there's an error but we have cached data
+                if (state is HomeError && state.hasCachedData)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8.0),
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.warning, size: 16, color: Colors.orange),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'Failed to refresh data. Showing cached content.',
+                            style:
+                                TextStyle(color: Colors.orange, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Hero Banner
+                HeroBanner(
+                  movies: seasonNowAnimes,
+                ),
+
+                // Categories/Genres
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Genres',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: MediaQuery.of(context).size.width *
+                                  0.045, // Responsive font size
+                            ),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text('View All'),
+                      ),
+                    ],
+                  ),
+                ),
+                CategorySlider(genres: genres),
+
+                // Top Anime Row
+                MovieRow(
+                  title: 'All-Time Top Anime',
+                  movies: topAnimes,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Upcoming Season Row
+                MovieRow(
+                  title: 'Upcoming Season Anime',
+                  movies: seasonUpcomingAnimes,
+                ),
+
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
-          _isGenresLoading
-              ? const Center(child: CircularProgressIndicator())
-              : CategorySlider(genres: _genres),
-
-          // Top Anime Row
-          MovieRow(
-            title: 'All-Time Top Anime',
-            movies: _isTopAnimesLoading ? null : _topAnimes,
-          ),
-
-          SizedBox(height: 16),
-
-          // Upcoming Season Row
-          MovieRow(
-            title: 'Upcoming Season Anime',
-            movies:
-                _isSeasonUpcomingAnimesLoading ? null : _seasonUpcomingAnimes,
-          ),
-
-          SizedBox(height: 16),
-        ],
-      ),
+        );
+      },
     );
   }
 }

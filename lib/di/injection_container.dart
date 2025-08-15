@@ -22,6 +22,7 @@ import 'package:flutter_boilerplate/domain/usecases/get_highlighted_genres_useca
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
+import 'package:flutter_boilerplate/presentation/viewmodels/home/home_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_boilerplate/core/services/theme_service.dart';
@@ -76,7 +77,10 @@ Future<void> init() async {
 
   // Repositories
   getIt.registerSingleton<AnimeRepository>(
-    AnimeRepositoryImpl(animeService: getIt<AnimeService>()),
+    AnimeRepositoryImpl(
+      animeService: getIt<AnimeService>(),
+      storageService: getIt<StorageService>(),
+    ),
   );
 
   getIt.registerSingleton<GenreRepository>(
@@ -131,6 +135,17 @@ Future<void> init() async {
     () => ProfileViewModel(
       getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
       logoutUseCase: getIt<LogoutUseCase>(),
+    ),
+  );
+
+  // BLoCs
+  getIt.registerFactory<HomeBloc>(
+    () => HomeBloc(
+      getTopAnimesUseCase: getIt<GetTopAnimesUseCase>(),
+      getSeasonNowAnimesUseCase: getIt<GetSeasonNowAnimesUseCase>(),
+      getSeasonUpcomingAnimesUseCase: getIt<GetSeasonUpcomingAnimesUseCase>(),
+      getHighlightedGenresUseCase: getIt<GetHighlightedGenresUseCase>(),
+      storageService: getIt<StorageService>(),
     ),
   );
 }
