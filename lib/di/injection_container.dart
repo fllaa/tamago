@@ -14,6 +14,7 @@ import 'package:flutter_boilerplate/domain/repositories/genre_repository.dart';
 import 'package:flutter_boilerplate/domain/usecases/anime/get_top_animes_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/anime/get_season_now_animes_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
+import 'package:flutter_boilerplate/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/login_usecase.dart';
 import 'package:flutter_boilerplate/domain/usecases/auth/logout_usecase.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_boilerplate/presentation/viewmodels/auth/login_viewmodel
 import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/home/home_bloc.dart';
+import 'package:flutter_boilerplate/presentation/viewmodels/anime_detail/anime_detail_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_boilerplate/core/services/theme_service.dart';
@@ -104,6 +106,10 @@ Future<void> init() async {
     GetSeasonUpcomingAnimesUseCase(repository: getIt<AnimeRepository>()),
   );
 
+  getIt.registerSingleton<GetAnimeDetailUseCase>(
+    GetAnimeDetailUseCase(repository: getIt<AnimeRepository>()),
+  );
+
   getIt.registerSingleton<GetHighlightedGenresUseCase>(
     GetHighlightedGenresUseCase(repository: getIt<GenreRepository>()),
   );
@@ -146,6 +152,12 @@ Future<void> init() async {
       getSeasonUpcomingAnimesUseCase: getIt<GetSeasonUpcomingAnimesUseCase>(),
       getHighlightedGenresUseCase: getIt<GetHighlightedGenresUseCase>(),
       storageService: getIt<StorageService>(),
+    ),
+  );
+
+  getIt.registerSingleton<AnimeDetailBloc>(
+    AnimeDetailBloc(
+      getAnimeDetailUseCase: getIt<GetAnimeDetailUseCase>(),
     ),
   );
 }

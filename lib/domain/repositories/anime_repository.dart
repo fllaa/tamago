@@ -1,7 +1,9 @@
 import 'package:jikan_api_v4/jikan_api_v4.dart';
+import 'package:flutter_boilerplate/domain/entities/anime_detail_result.dart';
 
 abstract class AnimeRepository {
   Future<List<Anime>> getTopAnimes();
   Future<List<Anime>> getSeasonNowAnimes();
   Future<List<Anime>> getSeasonUpcomingAnimes();
+  Future<AnimeDetailResult> getAnimeDetail(int malId);
 }
