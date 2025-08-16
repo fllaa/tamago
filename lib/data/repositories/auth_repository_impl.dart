@@ -60,7 +60,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await storageService.set(
           AppConstants.userKey, loginResponse.user.toJson());
 
-      return Right(loginResponse.user.toEntity() as entity.User);
+      return Right(loginResponse.user.toEntity());
     } on UnauthorizedException catch (e) {
       return Left(AuthFailure(message: e.message));
     } on ValidationException catch (e) {
@@ -115,7 +115,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await storageService.set(
           AppConstants.userKey, loginResponse.user.toJson());
 
-      return Right(loginResponse.user.toEntity() as entity.User);
+      return Right(loginResponse.user.toEntity());
     } on ValidationException catch (e) {
       return Left(ValidationFailure(
         message: e.message,
@@ -221,7 +221,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // If userJson is a string, parse it to a Map
       final userMap = userJson is String ? json.decode(userJson) : userJson;
       final userModel = UserModel.fromJson(userMap);
-      return Right(userModel.toEntity() as entity.User);
+      return Right(userModel.toEntity());
     } on CacheException catch (e) {
       return Left(CacheFailure(message: e.message));
     } catch (e) {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:flutter_boilerplate/presentation/viewmodels/anime_detail/anime_detail_bloc.dart';
 import 'package:flutter_boilerplate/di/injection_container.dart';

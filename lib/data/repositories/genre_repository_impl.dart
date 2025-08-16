@@ -2,7 +2,6 @@ import 'package:flutter_boilerplate/core/services/supabase_service.dart';
 import 'package:flutter_boilerplate/data/models/genre_model.dart';
 import 'package:flutter_boilerplate/domain/entities/genre.dart';
 import 'package:flutter_boilerplate/domain/repositories/genre_repository.dart';
-import 'package:supabase/supabase.dart';
 
 class GenreRepositoryImpl implements GenreRepository {
   final SupabaseService supabaseService;
@@ -18,7 +17,7 @@ class GenreRepositoryImpl implements GenreRepository {
           .order('order');
 
       final genres = response.map((json) {
-        return GenreModel.fromJson(json as Map<String, dynamic>);
+        return GenreModel.fromJson(json);
       }).toList();
 
       return genres.cast<Genre>();

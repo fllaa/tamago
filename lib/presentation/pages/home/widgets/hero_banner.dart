@@ -43,8 +43,8 @@ class _HeroBannerState extends State<HeroBanner> {
       final actualIndex = _currentPage % (widget.movies?.length ?? 1);
       final currentMovie = widget.movies![actualIndex];
       final paletteGenerator = await PaletteGenerator.fromImageProvider(
-        CachedNetworkImageProvider(currentMovie.imageUrl ??
-            ''), // Using null-aware operator as fallback
+        CachedNetworkImageProvider(
+            currentMovie.imageUrl), // Using null-aware operator as fallback
       );
       if (mounted) {
         setState(() {
@@ -149,7 +149,7 @@ class _HeroBannerState extends State<HeroBanner> {
           return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: CachedNetworkImageProvider(movie.imageUrl ?? ''),
+                image: CachedNetworkImageProvider(movie.imageUrl),
                 fit: BoxFit.cover,
               ),
             ),

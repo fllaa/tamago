@@ -9,12 +9,13 @@ class ThemeService {
 
   /// Get the current theme mode from storage
   Future<ThemeMode> getThemeMode() async {
-    final themeString = await _storageService.getTyped<String>(AppConstants.themeKey);
-    
+    final themeString =
+        await _storageService.getTyped<String>(AppConstants.themeKey);
+
     if (themeString == null) {
       return ThemeMode.system;
     }
-    
+
     switch (themeString) {
       case 'light':
         return ThemeMode.light;
@@ -35,12 +36,11 @@ class ThemeService {
       case ThemeMode.dark:
         themeString = 'dark';
         break;
-      case ThemeMode.system:
       default:
         themeString = 'system';
         break;
     }
-    
+
     await _storageService.set(AppConstants.themeKey, themeString);
   }
 }
