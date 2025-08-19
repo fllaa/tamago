@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/core/errors/failures.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart';
-import 'package:flutter_boilerplate/domain/usecases/auth/get_current_user_usecase.dart';
-import 'package:flutter_boilerplate/domain/usecases/auth/logout_usecase.dart';
+import 'package:tamago/core/errors/failures.dart';
+import 'package:tamago/domain/entities/user.dart';
+import 'package:tamago/domain/usecases/auth/get_current_user_usecase.dart';
+import 'package:tamago/domain/usecases/auth/logout_usecase.dart';
 
 part 'profile_state.dart';
 

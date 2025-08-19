@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:flutter_boilerplate/core/constants/app_constants.dart';
-import 'package:flutter_boilerplate/core/services/anime_service.dart';
-import 'package:flutter_boilerplate/core/services/storage_service.dart';
-import 'package:flutter_boilerplate/domain/repositories/anime_repository.dart';
-import 'package:flutter_boilerplate/domain/entities/anime_detail_result.dart';
+import 'package:tamago/core/constants/app_constants.dart';
+import 'package:tamago/core/services/anime_service.dart';
+import 'package:tamago/core/services/storage_service.dart';
+import 'package:tamago/domain/repositories/anime_repository.dart';
+import 'package:tamago/domain/entities/anime_detail_result.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 
 class AnimeRepositoryImpl implements AnimeRepository {
@@ -18,7 +18,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
   static const String _topAnimesTimestampKey = 'top_animes_timestamp';
   static const String _seasonNowTimestampKey = 'season_now_timestamp';
   static const String _seasonUpcomingTimestampKey = 'season_upcoming_timestamp';
-  static const String _animeDetailTimestampKeyPrefix = 'anime_detail_timestamp_';
+  static const String _animeDetailTimestampKeyPrefix =
+      'anime_detail_timestamp_';
 
   AnimeRepositoryImpl({
     required this.animeService,
@@ -29,17 +30,18 @@ class AnimeRepositoryImpl implements AnimeRepository {
   Future<List<Anime>> getTopAnimes() async {
     try {
       // Check cache first
-      final cachedData = await _getFromCache(_topAnimesCacheKey, _topAnimesTimestampKey);
+      final cachedData =
+          await _getFromCache(_topAnimesCacheKey, _topAnimesTimestampKey);
       if (cachedData != null) {
         return cachedData;
       }
 
       // Fetch from API if cache is invalid or empty
       final animeList = await animeService.getTopAnime();
-      
+
       // Save to cache
       await _saveToCache(_topAnimesCacheKey, _topAnimesTimestampKey, animeList);
-      
+
       return animeList;
     } catch (e) {
       // Try to return cached data even if it's expired in case of network error
@@ -55,17 +57,18 @@ class AnimeRepositoryImpl implements AnimeRepository {
   Future<List<Anime>> getSeasonNowAnimes() async {
     try {
       // Check cache first
-      final cachedData = await _getFromCache(_seasonNowCacheKey, _seasonNowTimestampKey);
+      final cachedData =
+          await _getFromCache(_seasonNowCacheKey, _seasonNowTimestampKey);
       if (cachedData != null) {
         return cachedData;
       }
 
       // Fetch from API if cache is invalid or empty
       final animeList = await animeService.getSeasonNow();
-      
+
       // Save to cache
       await _saveToCache(_seasonNowCacheKey, _seasonNowTimestampKey, animeList);
-      
+
       return animeList;
     } catch (e) {
       // Try to return cached data even if it's expired in case of network error
@@ -81,21 +84,24 @@ class AnimeRepositoryImpl implements AnimeRepository {
   Future<List<Anime>> getSeasonUpcomingAnimes() async {
     try {
       // Check cache first
-      final cachedData = await _getFromCache(_seasonUpcomingCacheKey, _seasonUpcomingTimestampKey);
+      final cachedData = await _getFromCache(
+          _seasonUpcomingCacheKey, _seasonUpcomingTimestampKey);
       if (cachedData != null) {
         return cachedData;
       }
 
       // Fetch from API if cache is invalid or empty
       final animeList = await animeService.getSeasonUpcoming();
-      
+
       // Save to cache
-      await _saveToCache(_seasonUpcomingCacheKey, _seasonUpcomingTimestampKey, animeList);
-      
+      await _saveToCache(
+          _seasonUpcomingCacheKey, _seasonUpcomingTimestampKey, animeList);
+
       return animeList;
     } catch (e) {
       // Try to return cached data even if it's expired in case of network error
-      final cachedData = await _getFromCacheIgnoreExpiry(_seasonUpcomingCacheKey);
+      final cachedData =
+          await _getFromCacheIgnoreExpiry(_seasonUpcomingCacheKey);
       if (cachedData != null) {
         return cachedData;
       }
@@ -108,7 +114,7 @@ class AnimeRepositoryImpl implements AnimeRepository {
     try {
       final cacheKey = '$_animeDetailCacheKeyPrefix$malId';
       final timestampKey = '$_animeDetailTimestampKeyPrefix$malId';
-      
+
       // Check cache first
       final cachedData = await _getAnimeDetailFromCache(cacheKey, timestampKey);
       if (cachedData != null) {
@@ -117,12 +123,12 @@ class AnimeRepositoryImpl implements AnimeRepository {
 
       // Fetch from API if cache is invalid or empty
       final anime = await animeService.getAnime(malId);
-      
+
       // Save to cache if anime is found
       if (anime != null) {
         await _saveAnimeDetailToCache(cacheKey, timestampKey, anime);
       }
-      
+
       return AnimeDetailResult(anime: anime, isFromCache: false);
     } catch (e) {
       // Try to return cached data even if it's expired in case of network error
@@ -136,27 +142,29 @@ class AnimeRepositoryImpl implements AnimeRepository {
   }
 
   // Helper method to check if cache is valid and return cached data
-  Future<List<Anime>?> _getFromCache(String cacheKey, String timestampKey) async {
+  Future<List<Anime>?> _getFromCache(
+      String cacheKey, String timestampKey) async {
     try {
       final cachedJson = await storageService.get(cacheKey);
       final timestampString = await storageService.get(timestampKey);
-      
+
       if (cachedJson == null || timestampString == null) {
         return null;
       }
 
       final timestamp = DateTime.parse(timestampString);
       final now = DateTime.now();
-      
+
       // Check if cache is still valid (within 24 hours)
-      if (now.difference(timestamp) > Duration(seconds: AppConstants.defaultCacheValidityDuration)) {
+      if (now.difference(timestamp) >
+          Duration(seconds: AppConstants.defaultCacheValidityDuration)) {
         return null;
       }
 
       final animeList = (jsonDecode(cachedJson) as List)
           .map((json) => Anime.fromJson(json))
           .toList();
-      
+
       return animeList;
     } catch (e) {
       return null;
@@ -167,7 +175,7 @@ class AnimeRepositoryImpl implements AnimeRepository {
   Future<List<Anime>?> _getFromCacheIgnoreExpiry(String cacheKey) async {
     try {
       final cachedJson = await storageService.get(cacheKey);
-      
+
       if (cachedJson == null) {
         return null;
       }
@@ -175,7 +183,7 @@ class AnimeRepositoryImpl implements AnimeRepository {
       final animeList = (jsonDecode(cachedJson) as List)
           .map((json) => Anime.fromJson(json))
           .toList();
-      
+
       return animeList;
     } catch (e) {
       return null;
@@ -183,7 +191,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
   }
 
   // Helper method to save data to cache
-  Future<void> _saveToCache(String cacheKey, String timestampKey, List<Anime> animeList) async {
+  Future<void> _saveToCache(
+      String cacheKey, String timestampKey, List<Anime> animeList) async {
     try {
       await Future.wait([
         storageService.set(
@@ -201,25 +210,27 @@ class AnimeRepositoryImpl implements AnimeRepository {
   }
 
   // Helper method to check if anime detail cache is valid and return cached data
-  Future<Anime?> _getAnimeDetailFromCache(String cacheKey, String timestampKey) async {
+  Future<Anime?> _getAnimeDetailFromCache(
+      String cacheKey, String timestampKey) async {
     try {
       final cachedJson = await storageService.get(cacheKey);
       final timestampString = await storageService.get(timestampKey);
-      
+
       if (cachedJson == null || timestampString == null) {
         return null;
       }
 
       final timestamp = DateTime.parse(timestampString);
       final now = DateTime.now();
-      
+
       // Check if cache is still valid (within 24 hours)
-      if (now.difference(timestamp) > Duration(seconds: AppConstants.defaultCacheValidityDuration)) {
+      if (now.difference(timestamp) >
+          Duration(seconds: AppConstants.defaultCacheValidityDuration)) {
         return null;
       }
 
       final anime = Anime.fromJson(jsonDecode(cachedJson));
-      
+
       return anime;
     } catch (e) {
       return null;
@@ -230,13 +241,13 @@ class AnimeRepositoryImpl implements AnimeRepository {
   Future<Anime?> _getAnimeDetailFromCacheIgnoreExpiry(String cacheKey) async {
     try {
       final cachedJson = await storageService.get(cacheKey);
-      
+
       if (cachedJson == null) {
         return null;
       }
 
       final anime = Anime.fromJson(jsonDecode(cachedJson));
-      
+
       return anime;
     } catch (e) {
       return null;
@@ -244,7 +255,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
   }
 
   // Helper method to save anime detail to cache
-  Future<void> _saveAnimeDetailToCache(String cacheKey, String timestampKey, Anime anime) async {
+  Future<void> _saveAnimeDetailToCache(
+      String cacheKey, String timestampKey, Anime anime) async {
     try {
       await Future.wait([
         storageService.set(

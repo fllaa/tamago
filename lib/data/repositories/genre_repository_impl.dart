@@ -1,7 +1,7 @@
-import 'package:flutter_boilerplate/core/services/supabase_service.dart';
-import 'package:flutter_boilerplate/data/models/genre_model.dart';
-import 'package:flutter_boilerplate/domain/entities/genre.dart';
-import 'package:flutter_boilerplate/domain/repositories/genre_repository.dart';
+import 'package:tamago/core/services/supabase_service.dart';
+import 'package:tamago/data/models/genre_model.dart';
+import 'package:tamago/domain/entities/genre.dart';
+import 'package:tamago/domain/repositories/genre_repository.dart';
 
 class GenreRepositoryImpl implements GenreRepository {
   final SupabaseService supabaseService;

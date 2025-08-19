@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_boilerplate/core/constants/api_constants.dart';
-import 'package:flutter_boilerplate/core/constants/app_constants.dart';
-import 'package:flutter_boilerplate/core/services/storage_service.dart';
-import 'package:flutter_boilerplate/di/injection_container.dart';
+import 'package:tamago/core/constants/api_constants.dart';
+import 'package:tamago/core/constants/app_constants.dart';
+import 'package:tamago/core/services/storage_service.dart';
+import 'package:tamago/di/injection_container.dart';
 
 class AuthInterceptor extends Interceptor {
   final StorageService _storageService = getIt<StorageService>();

@@ -1,5 +1,5 @@
 import 'package:supabase/supabase.dart';
-import 'package:flutter_boilerplate/core/config/flavor_config.dart';
+import 'package:tamago/core/config/flavor_config.dart';
 
 class SupabaseService {
   static SupabaseService? _instance;

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart';
+import 'package:tamago/domain/entities/user.dart';
 
 part 'user_model.g.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/app/routes/app_routes.dart';
+import 'package:tamago/app/routes/app_routes.dart';
 
 class ProductCard extends StatelessWidget {
   final String id;

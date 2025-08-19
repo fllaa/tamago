@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/app/themes/dark_theme.dart';
-import 'package:flutter_boilerplate/app/themes/light_theme.dart';
+import 'package:tamago/app/themes/dark_theme.dart';
+import 'package:tamago/app/themes/light_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {

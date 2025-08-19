@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:flutter_boilerplate/data/models/auth/user_model.dart';
+import 'package:tamago/data/models/auth/user_model.dart';
 
 part 'login_response.g.dart';
 

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/core/services/storage_service.dart';
-import 'package:flutter_boilerplate/domain/entities/genre.dart' as app_genre;
-import 'package:flutter_boilerplate/domain/usecases/anime/get_season_now_animes_usecase.dart';
-import 'package:flutter_boilerplate/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
-import 'package:flutter_boilerplate/domain/usecases/anime/get_top_animes_usecase.dart';
-import 'package:flutter_boilerplate/domain/usecases/get_highlighted_genres_usecase.dart';
+import 'package:tamago/core/services/storage_service.dart';
+import 'package:tamago/domain/entities/genre.dart' as app_genre;
+import 'package:tamago/domain/usecases/anime/get_season_now_animes_usecase.dart';
+import 'package:tamago/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
+import 'package:tamago/domain/usecases/anime/get_top_animes_usecase.dart';
+import 'package:tamago/domain/usecases/get_highlighted_genres_usecase.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 
 part 'home_event.dart';
@@ -126,12 +126,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<HomeLoaded?> _loadFromCache() async {
     try {
       final seasonNowJson = await _storageService.get(_seasonNowCacheKey);
-      final seasonUpcomingJson = await _storageService.get(_seasonUpcomingCacheKey);
+      final seasonUpcomingJson =
+          await _storageService.get(_seasonUpcomingCacheKey);
       final topAnimesJson = await _storageService.get(_topAnimesCacheKey);
       final genresJson = await _storageService.get(_genresCacheKey);
 
-      if (seasonNowJson == null || seasonUpcomingJson == null || 
-          topAnimesJson == null || genresJson == null) {
+      if (seasonNowJson == null ||
+          seasonUpcomingJson == null ||
+          topAnimesJson == null ||
+          genresJson == null) {
         return null;
       }
 
@@ -165,11 +168,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       await Future.wait([
         _storageService.set(
           _seasonNowCacheKey,
-          jsonEncode(data.seasonNowAnimes.map((anime) => anime.toJson()).toList()),
+          jsonEncode(
+              data.seasonNowAnimes.map((anime) => anime.toJson()).toList()),
         ),
         _storageService.set(
           _seasonUpcomingCacheKey,
-          jsonEncode(data.seasonUpcomingAnimes.map((anime) => anime.toJson()).toList()),
+          jsonEncode(data.seasonUpcomingAnimes
+              .map((anime) => anime.toJson())
+              .toList()),
         ),
         _storageService.set(
           _topAnimesCacheKey,

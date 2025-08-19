@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/presentation/pages/home/widgets/product_card.dart';
+import 'package:tamago/presentation/pages/home/widgets/product_card.dart';
 
 class ContentRow extends StatelessWidget {
   final String title;

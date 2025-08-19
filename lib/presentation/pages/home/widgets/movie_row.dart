@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/presentation/pages/home/widgets/movie_card.dart';
+import 'package:tamago/presentation/pages/home/widgets/movie_card.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 
 class MovieRow extends StatelessWidget {

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/home/home_bloc.dart';
-import 'package:flutter_boilerplate/presentation/pages/home/widgets/category_slider.dart';
-import 'package:flutter_boilerplate/presentation/pages/home/widgets/hero_banner.dart';
-import 'package:flutter_boilerplate/presentation/pages/home/widgets/movie_row.dart';
-import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
+import 'package:tamago/core/localization/app_localizations.dart';
+import 'package:tamago/presentation/viewmodels/home/home_bloc.dart';
+import 'package:tamago/presentation/pages/home/widgets/category_slider.dart';
+import 'package:tamago/presentation/pages/home/widgets/hero_banner.dart';
+import 'package:tamago/presentation/pages/home/widgets/movie_row.dart';
+import 'package:tamago/presentation/pages/profile/profile_page.dart';
+import 'package:tamago/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -142,7 +142,7 @@ class HomeContent extends StatelessWidget {
           onRefresh: () async {
             final completer = Completer<void>();
             final bloc = context.read<HomeBloc>();
-            
+
             // Listen for state changes to complete the refresh
             late StreamSubscription subscription;
             subscription = bloc.stream.listen((state) {
@@ -151,7 +151,7 @@ class HomeContent extends StatelessWidget {
                 completer.complete();
               }
             });
-            
+
             bloc.add(RefreshHomeData());
             return completer.future;
           },

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/presentation/pages/anime/anime_detail_page.dart';
+import 'package:tamago/presentation/pages/anime/anime_detail_page.dart';
 
 class MovieCard extends StatelessWidget {
   final int id;

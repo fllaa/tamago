@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/app/app.dart';
-import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
+import 'package:tamago/app/app.dart';
+import 'package:tamago/app/routes/app_routes.dart';
+import 'package:tamago/core/localization/app_localizations.dart';
+import 'package:tamago/presentation/viewmodels/profile/profile_viewmodel.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

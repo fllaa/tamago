@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_boilerplate/core/constants/api_constants.dart';
-import 'package:flutter_boilerplate/core/constants/app_constants.dart';
-import 'package:flutter_boilerplate/core/errors/exceptions.dart';
-import 'package:flutter_boilerplate/core/network/interceptors/auth_interceptor.dart';
-import 'package:flutter_boilerplate/core/network/interceptors/logging_interceptor.dart';
-import 'package:flutter_boilerplate/core/network/network_info.dart';
+import 'package:tamago/core/constants/api_constants.dart';
+import 'package:tamago/core/constants/app_constants.dart';
+import 'package:tamago/core/errors/exceptions.dart';
+import 'package:tamago/core/network/interceptors/auth_interceptor.dart';
+import 'package:tamago/core/network/interceptors/logging_interceptor.dart';
+import 'package:tamago/core/network/network_info.dart';
 
 class ApiClient {
   final Dio _dio;

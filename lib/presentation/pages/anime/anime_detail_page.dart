@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 import 'package:omni_video_player/omni_video_player.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/anime_detail/anime_detail_bloc.dart';
-import 'package:flutter_boilerplate/di/injection_container.dart';
+import 'package:tamago/presentation/viewmodels/anime_detail/anime_detail_bloc.dart';
+import 'package:tamago/di/injection_container.dart';
 
 class AnimeDetailPage extends StatefulWidget {
   final int malId;
@@ -90,7 +90,8 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                 ),
               );
             } else if (state is AnimeDetailLoaded) {
-              return _buildAnimeContent(context, state.anime, state.isFromCache);
+              return _buildAnimeContent(
+                  context, state.anime, state.isFromCache);
             }
             return const Center(child: Text('Anime not found'));
           },
@@ -99,219 +100,220 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     );
   }
 
-  Widget _buildAnimeContent(BuildContext context, Anime anime, bool isFromCache) {
+  Widget _buildAnimeContent(
+      BuildContext context, Anime anime, bool isFromCache) {
     return RefreshIndicator(
       onRefresh: () async {
         context.read<AnimeDetailBloc>().add(
-          RefreshAnimeDetail(malId: widget.malId),
-        );
+              RefreshAnimeDetail(malId: widget.malId),
+            );
         // Wait for the refresh to complete
         await Future.delayed(const Duration(milliseconds: 500));
       },
       child: CustomScrollView(
         slivers: [
-        // Trailer video section (without safe area)
-        SliverToBoxAdapter(
-          child: Container(
-            height: 250,
-            color: Colors.black,
-            child: _buildTrailerSection(anime),
+          // Trailer video section (without safe area)
+          SliverToBoxAdapter(
+            child: Container(
+              height: 250,
+              color: Colors.black,
+              child: _buildTrailerSection(anime),
+            ),
           ),
-        ),
 
-        // Anime information section
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Cache indicator
-                if (isFromCache)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: Colors.orange.withOpacity(0.3),
+          // Anime information section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Cache indicator
+                  if (isFromCache)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.offline_bolt,
-                          size: 16,
-                          color: Colors.orange[700],
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: Colors.orange.withOpacity(0.3),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Cached data',
-                          style: TextStyle(
-                            fontSize: 12,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.offline_bolt,
+                            size: 16,
                             color: Colors.orange[700],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                // Title and English title
-                Text(
-                  anime.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                          const SizedBox(width: 4),
+                          Text(
+                            'Cached data',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange[700],
+                            ),
+                          ),
+                        ],
                       ),
-                ),
-                if (anime.titleEnglish != null &&
-                    anime.titleEnglish!.isNotEmpty)
+                    ),
+                  // Title and English title
                   Text(
-                    anime.titleEnglish!,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.7),
+                    anime.title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
                   ),
-                const SizedBox(height: 16),
+                  if (anime.titleEnglish != null &&
+                      anime.titleEnglish!.isNotEmpty)
+                    Text(
+                      anime.titleEnglish!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.7),
+                          ),
+                    ),
+                  const SizedBox(height: 16),
 
-                // Aired date, season, status, studio, and rating
-                _buildInfoRow('Aired', anime.aired?.toString() ?? 'N/A'),
-                _buildInfoRow('Season', anime.season?.toString() ?? 'N/A'),
-                _buildInfoRow('Status', anime.status?.toString() ?? 'N/A'),
-                _buildInfoRow(
-                    'Studio',
-                    anime.studios.isNotEmpty == true
-                        ? anime.studios.map((s) => s.name).join(', ')
-                        : 'N/A'),
-                _buildInfoRow('Score', anime.score?.toString() ?? 'N/A'),
-                const SizedBox(height: 24),
+                  // Aired date, season, status, studio, and rating
+                  _buildInfoRow('Aired', anime.aired?.toString() ?? 'N/A'),
+                  _buildInfoRow('Season', anime.season?.toString() ?? 'N/A'),
+                  _buildInfoRow('Status', anime.status?.toString() ?? 'N/A'),
+                  _buildInfoRow(
+                      'Studio',
+                      anime.studios.isNotEmpty == true
+                          ? anime.studios.map((s) => s.name).join(', ')
+                          : 'N/A'),
+                  _buildInfoRow('Score', anime.score?.toString() ?? 'N/A'),
+                  const SizedBox(height: 24),
 
-                // Play and download buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Play action
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.play_arrow),
-                            SizedBox(width: 8),
-                            Text('Play'),
-                          ],
+                  // Play and download buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Play action
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.play_arrow),
+                              SizedBox(width: 8),
+                              Text('Play'),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          // Download action
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.download),
-                            SizedBox(width: 8),
-                            Text('Download'),
-                          ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            // Download action
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.download),
+                              SizedBox(width: 8),
+                              Text('Download'),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Synopsis
+                  Text(
+                    'Synopsis',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    anime.synopsis ?? 'No synopsis available',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Genres as labels
+                  Text(
+                    'Genres',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: anime.genres.isNotEmpty
+                        ? anime.genres.map((genre) {
+                            return Chip(
+                              label: Text(genre.name),
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.1),
+                            );
+                          }).toList()
+                        : [const Chip(label: Text('N/A'))],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+
+          // Tabs for episodes and recommendations
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(text: 'Episodes'),
+                    Tab(text: 'Recommendations'),
+                    Tab(text: 'Reviews'),
                   ],
                 ),
-                const SizedBox(height: 24),
-
-                // Synopsis
-                Text(
-                  'Synopsis',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                SizedBox(
+                  height: 300,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      // Episodes tab with dummy data
+                      _buildEpisodesTab(),
+                      // Recommendations tab with dummy data
+                      _buildRecommendationsTab(),
+                      // Reviews tab with dummy data
+                      _buildReviewsTab(),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  anime.synopsis ?? 'No synopsis available',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-
-                // Genres as labels
-                Text(
-                  'Genres',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: anime.genres.isNotEmpty
-                      ? anime.genres.map((genre) {
-                          return Chip(
-                            label: Text(genre.name),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.1),
-                          );
-                        }).toList()
-                      : [const Chip(label: Text('N/A'))],
-                ),
-                const SizedBox(height: 24),
               ],
             ),
           ),
-        ),
-
-        // Tabs for episodes and recommendations
-        SliverToBoxAdapter(
-          child: Column(
-            children: [
-              TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(text: 'Episodes'),
-                  Tab(text: 'Recommendations'),
-                  Tab(text: 'Reviews'),
-                ],
-              ),
-              SizedBox(
-                height: 300,
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Episodes tab with dummy data
-                    _buildEpisodesTab(),
-                    // Recommendations tab with dummy data
-                    _buildRecommendationsTab(),
-                    // Reviews tab with dummy data
-                    _buildReviewsTab(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
+        ],
+      ),
     );
   }
 

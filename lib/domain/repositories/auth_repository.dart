@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter_boilerplate/core/errors/failures.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart';
+import 'package:tamago/core/errors/failures.dart';
+import 'package:tamago/domain/entities/user.dart';
 
 abstract class AuthRepository {
   /// Login with email and password

@@ -1,5 +1,5 @@
 import 'package:jikan_api_v4/jikan_api_v4.dart';
-import 'package:flutter_boilerplate/domain/entities/anime_detail_result.dart';
+import 'package:tamago/domain/entities/anime_detail_result.dart';
 
 abstract class AnimeRepository {
   Future<List<Anime>> getTopAnimes();

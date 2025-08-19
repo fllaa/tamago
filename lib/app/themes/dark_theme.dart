@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/app/themes/app_theme.dart';
+import 'package:tamago/app/themes/app_theme.dart';
 
 class DarkTheme {
   // Private constructor to prevent instantiation

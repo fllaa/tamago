@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/core/errors/failures.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart';
-import 'package:flutter_boilerplate/domain/usecases/auth/sign_in_with_google_usecase.dart';
+import 'package:tamago/core/errors/failures.dart';
+import 'package:tamago/domain/entities/user.dart';
+import 'package:tamago/domain/usecases/auth/sign_in_with_google_usecase.dart';
 
 part 'sign_in_with_google_state.dart';
 

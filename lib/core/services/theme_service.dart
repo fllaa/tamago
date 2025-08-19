@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/core/constants/app_constants.dart';
-import 'package:flutter_boilerplate/core/services/storage_service.dart';
+import 'package:tamago/core/constants/app_constants.dart';
+import 'package:tamago/core/services/storage_service.dart';
 
 class ThemeService {
   final SharedPrefsStorageService _storageService;

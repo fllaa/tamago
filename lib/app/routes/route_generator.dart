@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
-import 'package:flutter_boilerplate/presentation/pages/auth/login/login_page.dart';
-import 'package:flutter_boilerplate/presentation/pages/home/home_page.dart';
-import 'package:flutter_boilerplate/presentation/pages/product/product_detail_page.dart';
-import 'package:flutter_boilerplate/presentation/pages/product/product_list_page.dart';
-import 'package:flutter_boilerplate/presentation/pages/profile/profile_page.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/profile/profile_viewmodel.dart';
+import 'package:tamago/app/routes/app_routes.dart';
+import 'package:tamago/domain/repositories/auth_repository.dart';
+import 'package:tamago/presentation/pages/auth/login/login_page.dart';
+import 'package:tamago/presentation/pages/home/home_page.dart';
+import 'package:tamago/presentation/pages/product/product_detail_page.dart';
+import 'package:tamago/presentation/pages/product/product_list_page.dart';
+import 'package:tamago/presentation/pages/profile/profile_page.dart';
+import 'package:tamago/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
+import 'package:tamago/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 
 class RouteGenerator {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
-import 'package:flutter_boilerplate/presentation/widgets/common/custom_button.dart';
-import 'package:flutter_boilerplate/presentation/widgets/common/loading_widget.dart';
+import 'package:tamago/app/routes/app_routes.dart';
+import 'package:tamago/core/localization/app_localizations.dart';
+import 'package:tamago/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
+import 'package:tamago/presentation/widgets/common/custom_button.dart';
+import 'package:tamago/presentation/widgets/common/loading_widget.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

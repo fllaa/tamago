@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/domain/entities/genre.dart' as app_genre;
+import 'package:tamago/domain/entities/genre.dart' as app_genre;
 import 'package:cached_network_image/cached_network_image.dart';
 
 class CategorySlider extends StatelessWidget {

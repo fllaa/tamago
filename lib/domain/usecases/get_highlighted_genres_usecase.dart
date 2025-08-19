@@ -1,5 +1,5 @@
-import 'package:flutter_boilerplate/domain/entities/genre.dart';
-import 'package:flutter_boilerplate/domain/repositories/genre_repository.dart';
+import 'package:tamago/domain/entities/genre.dart';
+import 'package:tamago/domain/repositories/genre_repository.dart';
 
 class GetHighlightedGenresUseCase {
   final GenreRepository repository;

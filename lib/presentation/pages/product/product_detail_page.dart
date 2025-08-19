@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
+import 'package:tamago/core/localization/app_localizations.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final String productId;

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/app/routes/app_routes.dart';
-import 'package:flutter_boilerplate/app/routes/route_generator.dart';
-import 'package:flutter_boilerplate/app/themes/app_theme.dart';
-import 'package:flutter_boilerplate/core/localization/app_localizations.dart';
-import 'package:flutter_boilerplate/core/services/language_service.dart';
-import 'package:flutter_boilerplate/core/services/theme_service.dart';
-import 'package:flutter_boilerplate/di/injection_container.dart';
-import 'package:flutter_boilerplate/presentation/viewmodels/auth/login_viewmodel.dart';
+import 'package:tamago/app/routes/app_routes.dart';
+import 'package:tamago/app/routes/route_generator.dart';
+import 'package:tamago/app/themes/app_theme.dart';
+import 'package:tamago/core/localization/app_localizations.dart';
+import 'package:tamago/core/services/language_service.dart';
+import 'package:tamago/core/services/theme_service.dart';
+import 'package:tamago/di/injection_container.dart';
+import 'package:tamago/presentation/viewmodels/auth/login_viewmodel.dart';
 
 class App extends StatefulWidget {
   const App({super.key});

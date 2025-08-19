@@ -1,4 +1,4 @@
-import 'package:flutter_boilerplate/domain/entities/genre.dart';
+import 'package:tamago/domain/entities/genre.dart';
 
 abstract class GenreRepository {
   Future<List<Genre>> getHighlightedGenres();

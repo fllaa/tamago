@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_boilerplate/core/errors/failures.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart';
-import 'package:flutter_boilerplate/domain/usecases/auth/login_usecase.dart';
+import 'package:tamago/core/errors/failures.dart';
+import 'package:tamago/domain/entities/user.dart';
+import 'package:tamago/domain/usecases/auth/login_usecase.dart';
 
 part 'login_state.dart';
 

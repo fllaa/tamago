@@ -1,20 +1,20 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
-import 'package:flutter_boilerplate/core/constants/api_constants.dart';
-import 'package:flutter_boilerplate/core/constants/app_constants.dart';
-import 'package:flutter_boilerplate/core/errors/exceptions.dart';
-import 'package:flutter_boilerplate/core/errors/failures.dart';
-import 'package:flutter_boilerplate/core/network/api_client.dart';
-import 'package:flutter_boilerplate/core/network/network_info.dart';
-import 'package:flutter_boilerplate/core/services/storage_service.dart';
-import 'package:flutter_boilerplate/data/models/auth/login_request.dart';
-import 'package:flutter_boilerplate/data/models/auth/login_response.dart';
-import 'package:flutter_boilerplate/data/models/auth/user_model.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart' as entity;
-import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
+import 'package:tamago/core/constants/api_constants.dart';
+import 'package:tamago/core/constants/app_constants.dart';
+import 'package:tamago/core/errors/exceptions.dart';
+import 'package:tamago/core/errors/failures.dart';
+import 'package:tamago/core/network/api_client.dart';
+import 'package:tamago/core/network/network_info.dart';
+import 'package:tamago/core/services/storage_service.dart';
+import 'package:tamago/data/models/auth/login_request.dart';
+import 'package:tamago/data/models/auth/login_response.dart';
+import 'package:tamago/data/models/auth/user_model.dart';
+import 'package:tamago/domain/entities/user.dart' as entity;
+import 'package:tamago/domain/repositories/auth_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase/supabase.dart' hide User;
-import 'package:flutter_boilerplate/core/services/supabase_service.dart';
+import 'package:tamago/core/services/supabase_service.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final ApiClient apiClient;

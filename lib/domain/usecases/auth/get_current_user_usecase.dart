@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_boilerplate/core/errors/failures.dart';
-import 'package:flutter_boilerplate/domain/entities/user.dart';
-import 'package:flutter_boilerplate/domain/repositories/auth_repository.dart';
+import 'package:tamago/core/errors/failures.dart';
+import 'package:tamago/domain/entities/user.dart';
+import 'package:tamago/domain/repositories/auth_repository.dart';
 
 class GetCurrentUserUseCase {
   final AuthRepository repository;
