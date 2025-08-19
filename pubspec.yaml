@@ -1,5 +1,5 @@
-name: flutter_boilerplate
-description: A Flutter boilerplate with clean architecture.
+name: tamago
+description: This project is an anime streaming & manga reader platform.
 publish_to: 'none'
 version: 1.0.0+1
 
