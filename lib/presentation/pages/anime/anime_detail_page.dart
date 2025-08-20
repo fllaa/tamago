@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:tamago/presentation/viewmodels/anime_detail/anime_detail_bloc.dart';
 import 'package:tamago/di/injection_container.dart';
+import 'package:tamago/core/services/supabase_service.dart';
 
 class AnimeDetailPage extends StatefulWidget {
   final int malId;
@@ -20,6 +24,7 @@ class AnimeDetailPage extends StatefulWidget {
 class _AnimeDetailPageState extends State<AnimeDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<Map<String, dynamic>> _scrapedEpisodes = [];
 
   @override
   void initState() {
@@ -118,6 +123,14 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
               height: 250,
               color: Colors.black,
               child: _buildTrailerSection(anime),
+            ),
+          ),
+
+          SliverToBoxAdapter(
+            child: Container(
+              height: 0,
+              color: Colors.black,
+              child: _buildWebView(anime),
             ),
           ),
 
@@ -296,7 +309,7 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                   ],
                 ),
                 SizedBox(
-                  height: 300,
+                  height: 600,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
@@ -394,28 +407,273 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     );
   }
 
-  Widget _buildEpisodesTab() {
-    // Dummy data for episodes
-    final episodes = List.generate(
-      12,
-      (index) => {
-        'id': index + 1,
-        'title': 'Episode ${index + 1}',
-        'duration': '24 min',
-        'aired': 'Oct ${index + 1}, 2023',
+  Widget _buildWebView(Anime anime) {
+    return FutureBuilder<String?>(
+      future: _getUrlFromSupabase(widget.malId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        late WebViewController controller;
+        String targetUrl;
+
+        if (snapshot.hasData && snapshot.data != null) {
+          // URL exists in Supabase, use it to scrape episodes
+          targetUrl = snapshot.data!;
+          print('Using existing URL from Supabase: $targetUrl');
+
+          controller = WebViewController()
+            ..setJavaScriptMode(JavaScriptMode.unrestricted)
+            ..setBackgroundColor(const Color(0x00000000))
+            ..setNavigationDelegate(
+              NavigationDelegate(
+                onProgress: (int progress) {
+                  // Update loading bar.
+                },
+                onPageStarted: (String url) {},
+                onPageFinished: (String url) async {
+                  print('URL From WebView: $url');
+                  // Scrape episodes from the anime page
+                  await _scrapeEpisodes(controller);
+                },
+                onWebResourceError: (WebResourceError error) {},
+              ),
+            )
+            ..loadRequest(Uri.parse(targetUrl));
+        } else {
+          // URL doesn't exist, proceed with initial scraping
+          targetUrl =
+              "https://v8.kuramanime.tel/anime?search=${Uri.encodeComponent(anime.title)}&order_by=oldest";
+          print('No URL found, searching for anime: $targetUrl');
+
+          controller = WebViewController()
+            ..setJavaScriptMode(JavaScriptMode.unrestricted)
+            ..setBackgroundColor(const Color(0x00000000))
+            ..setNavigationDelegate(
+              NavigationDelegate(
+                onProgress: (int progress) {
+                  // Update loading bar.
+                },
+                onPageStarted: (String url) {},
+                onPageFinished: (String url) async {
+                  print('URL From WebView: $url');
+                  // Scrape href URLs using CSS selector
+                  await _scrapeHrefUrls(controller);
+                },
+                onWebResourceError: (WebResourceError error) {},
+              ),
+            )
+            ..loadRequest(Uri.parse(targetUrl));
+        }
+
+        return WebViewWidget(controller: controller);
       },
     );
+  }
+
+  Future<String?> _getUrlFromSupabase(int malId) async {
+    try {
+      final supabaseService = GetIt.instance<SupabaseService>();
+      final response = await supabaseService.client
+          .from('anime_provider_urls')
+          .select('url')
+          .eq('mal_id', malId)
+          .eq('provider', 'kuramanime')
+          .limit(1);
+
+      print('Checking URL existence for malId: $malId');
+
+      if (response.isNotEmpty) {
+        final url = response[0]['url'] as String;
+        print('Found URL: $url');
+        return url;
+      }
+
+      print('No URL found for malId: $malId');
+      return null;
+    } catch (e) {
+      print('Error getting URL from Supabase: $e');
+      return null; // If error occurs, proceed with initial scraping
+    }
+  }
+
+  Future<void> _scrapeEpisodes(WebViewController controller) async {
+    try {
+      // Delay execution for 1 seconds to ensure page loads
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Extract episode URLs from the popover body
+      const String scrapeEpisodesCode = '''
+        (function() {
+          // Select the element by its id
+          const episodeLists = document.getElementById("episodeLists");
+          // Retrieve the value of data-content
+          const dataContent = episodeLists.getAttribute("data-content");
+          // Create a temporary container
+          const container = document.createElement("div");
+          // Parse the HTML string
+          container.innerHTML = dataContent;
+          // Now you can query the links inside
+          const links = container.querySelectorAll("a");
+          const episodes = [];
+          links.forEach(link => {
+            const href = link.href;
+            const text = link.textContent.trim();
+            if (href && text) {
+              episodes.push({
+                url: href,
+                title: text
+              });
+            }
+          });
+          return JSON.stringify(episodes);
+        })();
+      ''';
+
+      final result =
+          await controller.runJavaScriptReturningResult(scrapeEpisodesCode);
+
+      if (result != null) {
+        final String jsonString = result.toString();
+        if (jsonString.isNotEmpty && jsonString != 'null') {
+          await _processScrapedEpisodes(jsonString);
+        } else {
+          print('No episodes found');
+        }
+      }
+    } catch (e) {
+      print('Error scraping episodes: $e');
+    }
+  }
+
+  Future<void> _processScrapedEpisodes(String jsonString) async {
+    try {
+      // Remove surrounding quotes if present
+      String cleanJson = jsonString;
+      if (cleanJson.startsWith('"') && cleanJson.endsWith('"')) {
+        cleanJson = cleanJson.substring(1, cleanJson.length - 1);
+        // Unescape internal quotes
+        cleanJson = cleanJson.replaceAll('\\"', '"');
+      }
+
+      final List<dynamic> episodes = json.decode(cleanJson);
+      print('Found ${episodes.length} episodes');
+
+      // Store episodes in state variable instead of Supabase
+      setState(() {
+        _scrapedEpisodes = episodes
+            .map((episode) => {
+                  'episode_title': episode['title'] ?? 'Unknown Episode',
+                  'episode_url': episode['url'] ?? '',
+                  'provider': 'kuramanime',
+                })
+            .toList();
+      });
+
+      print('Episodes stored in state: ${_scrapedEpisodes.length}');
+    } catch (e) {
+      print('Error processing scraped episodes: $e');
+    }
+  }
+
+  Future<void> _scrapeHrefUrls(WebViewController controller) async {
+    try {
+      // Delay execution for 1 seconds
+      await Future.delayed(const Duration(seconds: 1));
+
+      // JavaScript to extract href URLs using the CSS selector
+      const String jsCode = '''
+        (function() {
+          const element = document.querySelector('#animeList > div:nth-child(1) > a');
+          console.log(element);
+          const url = element.href;
+          return JSON.stringify(url);
+        })();
+      ''';
+
+      final result = await controller.runJavaScriptReturningResult(jsCode);
+
+      if (result != null) {
+        // Parse the JSON result
+        final String jsonString = result.toString().replaceAll('"', '');
+        if (jsonString.isNotEmpty && jsonString != 'null') {
+          // Remove surrounding quotes and parse as JSON
+          final String cleanJson = result.toString().replaceAll('\\"', '');
+          print('Scraped URLs: $cleanJson');
+
+          // You can process the URLs here
+          // For example, store them in a state variable or pass to another method
+          await _handleScrapedUrl(cleanJson);
+        }
+      }
+    } catch (e) {
+      print('Error scraping URLs: $e');
+    }
+  }
+
+  Future<void> _handleScrapedUrl(String url) async {
+    try {
+      // Remove quotes from the URL if present
+      final cleanUrl = url.replaceAll('"', '');
+
+      // Prepare data for insertion
+      final data = {
+        'mal_id': widget.malId,
+        'provider': 'kuramanime',
+        'url': cleanUrl,
+      };
+
+      print('Inserting URL into Supabase: $data');
+
+      // Insert into anime_provider_urls table
+      final response = await SupabaseService.instance.client
+          .from('anime_provider_urls')
+          .insert(data);
+
+      print('Successfully inserted URL into database');
+    } catch (e) {
+      print('Error inserting URL into database: $e');
+    }
+  }
+
+  Widget _buildEpisodesTab() {
+    if (_scrapedEpisodes.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.video_library_outlined, size: 48, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No episodes available',
+              style: TextStyle(color: Colors.grey),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Episodes will appear here after scraping',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
-      itemCount: episodes.length,
+      itemCount: _scrapedEpisodes.length,
       itemBuilder: (context, index) {
-        final episode = episodes[index] as Map<String, dynamic>;
+        final episode = _scrapedEpisodes[index];
         return ListTile(
-          title: Text(episode['title'] as String),
-          subtitle: Text('${episode['duration']} • ${episode['aired']}'),
+          title: Text(episode['episode_title'] ?? 'Episode ${index + 1}'),
+          subtitle: Text('Provider: ${episode['provider'] ?? 'Unknown'}'),
           trailing: const Icon(Icons.play_arrow),
           onTap: () {
-            // Play episode action
+            // Navigate to episode player with episode URL
+            final episodeUrl = episode['episode_url'];
+            if (episodeUrl != null && episodeUrl.isNotEmpty) {
+              // TODO: Navigate to video player with episodeUrl
+              print('Playing episode: $episodeUrl');
+            }
           },
         );
       },
