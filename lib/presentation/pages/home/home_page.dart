@@ -60,7 +60,6 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        indicatorColor: Colors.transparent, // Remove default indicator
         destinations: [
           NavigationDestination(
             icon: Icon(LucideIcons.house),
