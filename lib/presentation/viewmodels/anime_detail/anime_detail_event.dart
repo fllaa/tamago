@@ -52,3 +52,16 @@ class LoadAnimeRecommendations extends AnimeDetailEvent {
   @override
   List<Object> get props => [malId];
 }
+
+class LoadAnimeReviews extends AnimeDetailEvent {
+  final int malId;
+  final int page;
+
+  const LoadAnimeReviews({
+    required this.malId,
+    this.page = 1,
+  });
+
+  @override
+  List<Object> get props => [malId, page];
+}

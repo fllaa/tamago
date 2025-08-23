@@ -8,4 +8,5 @@ abstract class AnimeRepository {
   Future<AnimeDetailResult> getAnimeDetail(int malId);
   Future<List<Episode>> getAnimeEpisodes(int malId, {int page = 1});
   Future<List<Recommendation>> getAnimeRecommendations(int malId);
+  Future<List<Review>> getAnimeReviews(int malId, {int page = 1});
 }

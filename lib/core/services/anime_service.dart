@@ -85,4 +85,15 @@ class AnimeService {
       return [];
     }
   }
+
+  // Get anime reviews by mal_id
+  Future<List<Review>> getAnimeReviews(int malId, {int page = 1}) async {
+    try {
+      final response = await _jikan.getAnimeReviews(malId, page: page);
+      return response.toList();
+    } catch (e) {
+      // Return empty list if there's an error
+      return [];
+    }
+  }
 }

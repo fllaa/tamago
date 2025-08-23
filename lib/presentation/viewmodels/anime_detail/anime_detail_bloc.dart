@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_episodes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_recommendations_usecase.dart';
+import 'package:tamago/domain/usecases/anime/get_anime_reviews_usecase.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 
 part 'anime_detail_event.dart';
@@ -13,25 +14,30 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
   final GetAnimeDetailUseCase _getAnimeDetailUseCase;
   final GetAnimeEpisodesUseCase _getAnimeEpisodesUseCase;
   final GetAnimeRecommendationsUseCase _getAnimeRecommendationsUseCase;
+  final GetAnimeReviewsUseCase _getAnimeReviewsUseCase;
 
   // In-memory cache for anime details indexed by malId
   final Map<int, Anime> _animeCache = {};
   final Map<int, bool> _animeCacheSource = {}; // Track if data is from cache
   final Map<int, List<Episode>> _episodesCache = {};
   final Map<int, List<Recommendation>> _recommendationsCache = {};
+  final Map<int, List<Review>> _reviewsCache = {};
 
   AnimeDetailBloc({
     required GetAnimeDetailUseCase getAnimeDetailUseCase,
     required GetAnimeEpisodesUseCase getAnimeEpisodesUseCase,
     required GetAnimeRecommendationsUseCase getAnimeRecommendationsUseCase,
+    required GetAnimeReviewsUseCase getAnimeReviewsUseCase,
   })  : _getAnimeDetailUseCase = getAnimeDetailUseCase,
         _getAnimeEpisodesUseCase = getAnimeEpisodesUseCase,
         _getAnimeRecommendationsUseCase = getAnimeRecommendationsUseCase,
+        _getAnimeReviewsUseCase = getAnimeReviewsUseCase,
         super(AnimeDetailInitial()) {
     on<LoadAnimeDetail>(_onLoadAnimeDetail);
     on<RefreshAnimeDetail>(_onRefreshAnimeDetail);
     on<LoadAnimeEpisodes>(_onLoadAnimeEpisodes);
     on<LoadAnimeRecommendations>(_onLoadAnimeRecommendations);
+    on<LoadAnimeReviews>(_onLoadAnimeReviews);
   }
 
   Future<void> _onLoadAnimeDetail(
@@ -91,6 +97,7 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
     _animeCache.remove(event.malId);
     _animeCacheSource.remove(event.malId);
     _episodesCache.remove(event.malId);
+    _reviewsCache.remove(event.malId);
 
     // For refresh, we'll load the data again with forceRefresh flag
     // The repository will handle cache invalidation if needed
@@ -180,6 +187,50 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         emit(currentState.copyWith(
           recommendationsLoading: false,
           recommendationsError: 'Failed to load recommendations: ${e.toString()}',
+        ));
+      }
+    }
+  }
+
+  Future<void> _onLoadAnimeReviews(
+    LoadAnimeReviews event,
+    Emitter<AnimeDetailState> emit,
+  ) async {
+    try {
+      // Check if we already have reviews in memory cache
+      if (_reviewsCache.containsKey(event.malId)) {
+        final currentState = state;
+        if (currentState is AnimeDetailLoaded) {
+          emit(currentState.copyWith(reviews: _reviewsCache[event.malId]));
+        }
+        return;
+      }
+
+      // Update state to show reviews are loading if anime detail is already loaded
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(reviewsLoading: true));
+      }
+
+      final reviews = await _getAnimeReviewsUseCase(event.malId, page: event.page);
+
+      // Store in memory cache
+      _reviewsCache[event.malId] = reviews;
+
+      // Update state with reviews - check current state again as it might have changed
+      final updatedState = state;
+      if (updatedState is AnimeDetailLoaded) {
+        emit(updatedState.copyWith(
+          reviews: reviews,
+          reviewsLoading: false,
+        ));
+      }
+    } catch (e) {
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(
+          reviewsLoading: false,
+          reviewsError: 'Failed to load reviews: ${e.toString()}',
         ));
       }
     }

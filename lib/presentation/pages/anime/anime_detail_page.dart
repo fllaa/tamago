@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
@@ -22,6 +20,7 @@ class AnimeDetailPage extends StatefulWidget {
 class _AnimeDetailPageState extends State<AnimeDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final Set<int> _expandedReviews = <int>{};
 
   @override
   void initState() {
@@ -33,6 +32,9 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     getIt<AnimeDetailBloc>().add(LoadAnimeEpisodes(malId: widget.malId));
     // Load recommendations when the page initializes
     getIt<AnimeDetailBloc>().add(LoadAnimeRecommendations(malId: widget.malId));
+    // Load reviews when the page initializes
+    getIt<AnimeDetailBloc>()
+        .add(LoadAnimeReviews(malId: widget.malId, page: 1));
   }
 
   @override
@@ -317,8 +319,15 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                       ),
                       // Recommendations tab with dummy data
                       _buildRecommendationsTab(),
-                      // Reviews tab with dummy data
-                      _buildReviewsTab(),
+                      // Reviews tab with real data
+                      BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
+                        builder: (context, state) {
+                          if (state is AnimeDetailLoaded) {
+                            return _buildReviewsTab(state);
+                          }
+                          return _buildReviewsTab(null);
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -654,23 +663,68 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     );
   }
 
-  Widget _buildReviewsTab() {
-    // Dummy data for reviews
-    final reviews = List.generate(
-      3,
-      (index) => {
-        'user': 'User ${index + 1}',
-        'rating': 4.5 - index * 0.5,
-        'comment': 'This is a great anime! I really enjoyed watching it. '
-            'The story is engaging and the characters are well-developed.',
-        'date': '2023-10-${10 + index}',
-      },
-    );
+  Widget _buildReviewsTab(AnimeDetailLoaded? state) {
+    if (state == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.reviewsLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.reviewsError != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading reviews',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.reviewsError!,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                context.read<AnimeDetailBloc>().add(
+                      LoadAnimeReviews(malId: widget.malId, page: 1),
+                    );
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final reviews = state.reviews ?? [];
+
+    if (reviews.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.rate_review, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No reviews available',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       itemCount: reviews.length,
       itemBuilder: (context, index) {
-        final review = reviews[index] as Map<String, dynamic>;
+        final review = reviews[index];
         return Card(
           margin: const EdgeInsets.all(8.0),
           child: Padding(
@@ -681,32 +735,111 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      review['user'] as String,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: Text(
+                        review.user?.username ?? 'Anonymous',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    Text(review['date'] as String),
+                    Text(
+                      review.date,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: List.generate(5, (starIndex) {
-                    return Icon(
-                      starIndex < (review['rating'] as num)
-                          ? Icons.star
-                          : Icons.star_border,
-                      size: 16,
-                      color: Colors.amber,
-                    );
-                  }),
-                ),
+                if (review.score != null)
+                  Row(
+                    children: [
+                      ...List.generate(5, (starIndex) {
+                        final convertedScore = review.score! /
+                            2.0; // Convert 10-point to 5-point scale
+                        return Icon(
+                          starIndex < convertedScore.floor()
+                              ? Icons.star
+                              : (starIndex < convertedScore &&
+                                      convertedScore % 1 >= 0.5)
+                                  ? Icons.star_half
+                                  : Icons.star_border,
+                          size: 16,
+                          color: Colors.amber,
+                        );
+                      }),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${(review.score! / 2.0).toStringAsFixed(1)}/5',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 const SizedBox(height: 8),
-                Text(review['comment'] as String),
+                if (review.review != null && review.review!.isNotEmpty)
+                  _buildReviewText(review.review!, index),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildReviewText(String reviewText, int index) {
+    const int maxLength = 200; // Maximum characters to show when truncated
+    final bool isExpanded = _expandedReviews.contains(index);
+    final bool needsTruncation = reviewText.length > maxLength;
+
+    if (!needsTruncation || isExpanded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            reviewText,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          if (needsTruncation && isExpanded)
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _expandedReviews.remove(index);
+                });
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                'Show less',
+              ),
+            ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${reviewText.substring(0, maxLength)}...',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _expandedReviews.add(index);
+            });
+          },
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            'More',
+          ),
+        ),
+      ],
     );
   }
 }

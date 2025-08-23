@@ -18,6 +18,7 @@ class AnimeRepositoryImpl implements AnimeRepository {
   static const String _animeDetailCacheKeyPrefix = 'anime_detail_cache_';
   static const String _animeEpisodesCacheKeyPrefix = 'anime_episodes_cache_';
   static const String _animeRecommendationsCacheKeyPrefix = 'anime_recommendations_cache_';
+  static const String _animeReviewsCacheKeyPrefix = 'anime_reviews_cache_';
   static const String _topAnimesTimestampKey = 'top_animes_timestamp';
   static const String _seasonNowTimestampKey = 'season_now_timestamp';
   static const String _seasonUpcomingTimestampKey = 'season_upcoming_timestamp';
@@ -27,6 +28,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
       'anime_episodes_timestamp_';
   static const String _animeRecommendationsTimestampKeyPrefix =
       'anime_recommendations_timestamp_';
+  static const String _animeReviewsTimestampKeyPrefix =
+      'anime_reviews_timestamp_';
 
   AnimeRepositoryImpl({
     required this.animeService,
@@ -205,6 +208,36 @@ class AnimeRepositoryImpl implements AnimeRepository {
         return cachedData;
       }
       throw Exception('Failed to fetch anime recommendations: $e');
+    }
+  }
+
+  @override
+  Future<List<Review>> getAnimeReviews(int malId, {int page = 1}) async {
+    try {
+      final cacheKey = '$_animeReviewsCacheKeyPrefix${malId}_$page';
+      final timestampKey = '$_animeReviewsTimestampKeyPrefix${malId}_$page';
+
+      // Check cache first
+      final cachedData = await _getReviewsFromCache(cacheKey, timestampKey);
+      if (cachedData != null) {
+        return cachedData;
+      }
+
+      // Fetch from API if cache is invalid or empty
+      final reviews = await animeService.getAnimeReviews(malId, page: page);
+
+      // Save to cache
+      await _saveReviewsToCache(cacheKey, timestampKey, reviews);
+
+      return reviews;
+    } catch (e) {
+      // Try to return cached data even if it's expired in case of network error
+      final cacheKey = '$_animeReviewsCacheKeyPrefix${malId}_$page';
+      final cachedData = await _getReviewsFromCacheIgnoreExpiry(cacheKey);
+      if (cachedData != null) {
+        return cachedData;
+      }
+      throw Exception('Failed to fetch anime reviews: $e');
     }
   }
 
@@ -467,6 +500,75 @@ class AnimeRepositoryImpl implements AnimeRepository {
         storageService.set(
           cacheKey,
           jsonEncode(recommendations.map((r) => r.toJson()).toList()),
+        ),
+        storageService.set(
+          timestampKey,
+          DateTime.now().toIso8601String(),
+        ),
+      ]);
+    } catch (e) {
+      // Silently fail cache save
+    }
+  }
+
+  // Helper method to check if reviews cache is valid and return cached data
+  Future<List<Review>?> _getReviewsFromCache(
+      String cacheKey, String timestampKey) async {
+    try {
+      final cachedJson = await storageService.get(cacheKey);
+      final timestampString = await storageService.get(timestampKey);
+
+      if (cachedJson == null || timestampString == null) {
+        return null;
+      }
+
+      final timestamp = DateTime.parse(timestampString);
+      final now = DateTime.now();
+
+      // Check if cache is still valid (within 24 hours)
+      if (now.difference(timestamp) >
+          Duration(seconds: AppConstants.defaultCacheValidityDuration)) {
+        return null;
+      }
+
+      final reviews = (jsonDecode(cachedJson) as List)
+          .map((json) => Review.fromJson(json))
+          .toList();
+
+      return reviews;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper method to get reviews cached data ignoring expiry (for fallback)
+  Future<List<Review>?> _getReviewsFromCacheIgnoreExpiry(
+      String cacheKey) async {
+    try {
+      final cachedJson = await storageService.get(cacheKey);
+
+      if (cachedJson == null) {
+        return null;
+      }
+
+      final reviews = (jsonDecode(cachedJson) as List)
+          .map((json) => Review.fromJson(json))
+          .toList();
+
+      return reviews;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper method to save reviews to cache
+  Future<void> _saveReviewsToCache(
+      String cacheKey, String timestampKey, List<Review> reviews) async {
+    try {
+      await Future.wait([
+        storageService.set(
+          cacheKey,
+          jsonEncode(reviews.map((r) => r.toJson()).toList()),
         ),
         storageService.set(
           timestampKey,

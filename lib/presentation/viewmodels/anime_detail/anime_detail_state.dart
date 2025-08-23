@@ -20,6 +20,9 @@ class AnimeDetailLoaded extends AnimeDetailState {
   final List<Recommendation>? recommendations;
   final bool recommendationsLoading;
   final String? recommendationsError;
+  final List<Review>? reviews;
+  final bool reviewsLoading;
+  final String? reviewsError;
 
   const AnimeDetailLoaded({
     required this.anime,
@@ -30,10 +33,13 @@ class AnimeDetailLoaded extends AnimeDetailState {
     this.recommendations,
     this.recommendationsLoading = false,
     this.recommendationsError,
+    this.reviews,
+    this.reviewsLoading = false,
+    this.reviewsError,
   });
 
   @override
-  List<Object?> get props => [anime, isFromCache, episodes, episodesLoading, episodesError, recommendations, recommendationsLoading, recommendationsError];
+  List<Object?> get props => [anime, isFromCache, episodes, episodesLoading, episodesError, recommendations, recommendationsLoading, recommendationsError, reviews, reviewsLoading, reviewsError];
 
   AnimeDetailLoaded copyWith({
     Anime? anime,
@@ -44,6 +50,9 @@ class AnimeDetailLoaded extends AnimeDetailState {
     List<Recommendation>? recommendations,
     bool? recommendationsLoading,
     String? recommendationsError,
+    List<Review>? reviews,
+    bool? reviewsLoading,
+    String? reviewsError,
   }) {
     return AnimeDetailLoaded(
       anime: anime ?? this.anime,
@@ -54,6 +63,9 @@ class AnimeDetailLoaded extends AnimeDetailState {
       recommendations: recommendations ?? this.recommendations,
       recommendationsLoading: recommendationsLoading ?? this.recommendationsLoading,
       recommendationsError: recommendationsError,
+      reviews: reviews ?? this.reviews,
+      reviewsLoading: reviewsLoading ?? this.reviewsLoading,
+      reviewsError: reviewsError,
     );
   }
 }
