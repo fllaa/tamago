@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 import 'package:tamago/app/routes/app_routes.dart';
 import 'package:tamago/app/routes/route_generator.dart';
 import 'package:tamago/app/themes/app_theme.dart';
@@ -88,6 +89,7 @@ class _AppState extends State<App> {
       providers: [
         BlocProvider(create: (_) => getIt<LoginViewModel>()),
         // Add other global BlocProviders here
+        BlocProvider(create: (_) => GlobalPlaybackController()),
       ],
       child: MaterialApp(
         title: 'Tamago',
