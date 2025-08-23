@@ -7,4 +7,5 @@ abstract class AnimeRepository {
   Future<List<Anime>> getSeasonUpcomingAnimes();
   Future<AnimeDetailResult> getAnimeDetail(int malId);
   Future<List<Episode>> getAnimeEpisodes(int malId, {int page = 1});
+  Future<List<Recommendation>> getAnimeRecommendations(int malId);
 }

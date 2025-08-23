@@ -16,6 +16,7 @@ import 'package:tamago/domain/usecases/anime/get_season_now_animes_usecase.dart'
 import 'package:tamago/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_episodes_usecase.dart';
+import 'package:tamago/domain/usecases/anime/get_anime_recommendations_usecase.dart';
 import 'package:tamago/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:tamago/domain/usecases/auth/login_usecase.dart';
 import 'package:tamago/domain/usecases/auth/logout_usecase.dart';
@@ -115,6 +116,10 @@ Future<void> init() async {
     GetAnimeEpisodesUseCase(repository: getIt<AnimeRepository>()),
   );
 
+  getIt.registerSingleton<GetAnimeRecommendationsUseCase>(
+    GetAnimeRecommendationsUseCase(repository: getIt<AnimeRepository>()),
+  );
+
   getIt.registerSingleton<GetHighlightedGenresUseCase>(
     GetHighlightedGenresUseCase(repository: getIt<GenreRepository>()),
   );
@@ -164,6 +169,7 @@ Future<void> init() async {
     AnimeDetailBloc(
       getAnimeDetailUseCase: getIt<GetAnimeDetailUseCase>(),
       getAnimeEpisodesUseCase: getIt<GetAnimeEpisodesUseCase>(),
+      getAnimeRecommendationsUseCase: getIt<GetAnimeRecommendationsUseCase>(),
     ),
   );
 }

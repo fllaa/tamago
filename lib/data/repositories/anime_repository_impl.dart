@@ -17,6 +17,7 @@ class AnimeRepositoryImpl implements AnimeRepository {
   static const String _seasonUpcomingCacheKey = 'season_upcoming_cache';
   static const String _animeDetailCacheKeyPrefix = 'anime_detail_cache_';
   static const String _animeEpisodesCacheKeyPrefix = 'anime_episodes_cache_';
+  static const String _animeRecommendationsCacheKeyPrefix = 'anime_recommendations_cache_';
   static const String _topAnimesTimestampKey = 'top_animes_timestamp';
   static const String _seasonNowTimestampKey = 'season_now_timestamp';
   static const String _seasonUpcomingTimestampKey = 'season_upcoming_timestamp';
@@ -24,6 +25,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
       'anime_detail_timestamp_';
   static const String _animeEpisodesTimestampKeyPrefix =
       'anime_episodes_timestamp_';
+  static const String _animeRecommendationsTimestampKeyPrefix =
+      'anime_recommendations_timestamp_';
 
   AnimeRepositoryImpl({
     required this.animeService,
@@ -172,6 +175,36 @@ class AnimeRepositoryImpl implements AnimeRepository {
         return cachedData;
       }
       throw Exception('Failed to fetch anime episodes: $e');
+    }
+  }
+
+  @override
+  Future<List<Recommendation>> getAnimeRecommendations(int malId) async {
+    try {
+      final cacheKey = '$_animeRecommendationsCacheKeyPrefix$malId';
+      final timestampKey = '$_animeRecommendationsTimestampKeyPrefix$malId';
+
+      // Check cache first
+      final cachedData = await _getRecommendationsFromCache(cacheKey, timestampKey);
+      if (cachedData != null) {
+        return cachedData;
+      }
+
+      // Fetch from API if cache is invalid or empty
+      final recommendations = await animeService.getAnimeRecommendations(malId);
+
+      // Save to cache
+      await _saveRecommendationsToCache(cacheKey, timestampKey, recommendations);
+
+      return recommendations;
+    } catch (e) {
+      // Try to return cached data even if it's expired in case of network error
+      final cacheKey = '$_animeRecommendationsCacheKeyPrefix$malId';
+      final cachedData = await _getRecommendationsFromCacheIgnoreExpiry(cacheKey);
+      if (cachedData != null) {
+        return cachedData;
+      }
+      throw Exception('Failed to fetch anime recommendations: $e');
     }
   }
 
@@ -365,6 +398,75 @@ class AnimeRepositoryImpl implements AnimeRepository {
         storageService.set(
           cacheKey,
           jsonEncode(episodes.map((e) => e.toJson()).toList()),
+        ),
+        storageService.set(
+          timestampKey,
+          DateTime.now().toIso8601String(),
+        ),
+      ]);
+    } catch (e) {
+      // Silently fail cache save
+    }
+  }
+
+  // Helper method to check if recommendations cache is valid and return cached data
+  Future<List<Recommendation>?> _getRecommendationsFromCache(
+      String cacheKey, String timestampKey) async {
+    try {
+      final cachedJson = await storageService.get(cacheKey);
+      final timestampString = await storageService.get(timestampKey);
+
+      if (cachedJson == null || timestampString == null) {
+        return null;
+      }
+
+      final timestamp = DateTime.parse(timestampString);
+      final now = DateTime.now();
+
+      // Check if cache is still valid (within 24 hours)
+      if (now.difference(timestamp) >
+          Duration(seconds: AppConstants.defaultCacheValidityDuration)) {
+        return null;
+      }
+
+      final recommendations = (jsonDecode(cachedJson) as List)
+          .map((json) => Recommendation.fromJson(json))
+          .toList();
+
+      return recommendations;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper method to get recommendations cached data ignoring expiry (for fallback)
+  Future<List<Recommendation>?> _getRecommendationsFromCacheIgnoreExpiry(
+      String cacheKey) async {
+    try {
+      final cachedJson = await storageService.get(cacheKey);
+
+      if (cachedJson == null) {
+        return null;
+      }
+
+      final recommendations = (jsonDecode(cachedJson) as List)
+          .map((json) => Recommendation.fromJson(json))
+          .toList();
+
+      return recommendations;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper method to save recommendations to cache
+  Future<void> _saveRecommendationsToCache(
+      String cacheKey, String timestampKey, List<Recommendation> recommendations) async {
+    try {
+      await Future.wait([
+        storageService.set(
+          cacheKey,
+          jsonEncode(recommendations.map((r) => r.toJson()).toList()),
         ),
         storageService.set(
           timestampKey,

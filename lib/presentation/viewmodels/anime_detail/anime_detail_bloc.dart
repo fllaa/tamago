@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_episodes_usecase.dart';
+import 'package:tamago/domain/usecases/anime/get_anime_recommendations_usecase.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 
 part 'anime_detail_event.dart';
@@ -11,21 +12,26 @@ part 'anime_detail_state.dart';
 class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
   final GetAnimeDetailUseCase _getAnimeDetailUseCase;
   final GetAnimeEpisodesUseCase _getAnimeEpisodesUseCase;
+  final GetAnimeRecommendationsUseCase _getAnimeRecommendationsUseCase;
 
   // In-memory cache for anime details indexed by malId
   final Map<int, Anime> _animeCache = {};
   final Map<int, bool> _animeCacheSource = {}; // Track if data is from cache
   final Map<int, List<Episode>> _episodesCache = {};
+  final Map<int, List<Recommendation>> _recommendationsCache = {};
 
   AnimeDetailBloc({
     required GetAnimeDetailUseCase getAnimeDetailUseCase,
     required GetAnimeEpisodesUseCase getAnimeEpisodesUseCase,
+    required GetAnimeRecommendationsUseCase getAnimeRecommendationsUseCase,
   })  : _getAnimeDetailUseCase = getAnimeDetailUseCase,
         _getAnimeEpisodesUseCase = getAnimeEpisodesUseCase,
+        _getAnimeRecommendationsUseCase = getAnimeRecommendationsUseCase,
         super(AnimeDetailInitial()) {
     on<LoadAnimeDetail>(_onLoadAnimeDetail);
     on<RefreshAnimeDetail>(_onRefreshAnimeDetail);
     on<LoadAnimeEpisodes>(_onLoadAnimeEpisodes);
+    on<LoadAnimeRecommendations>(_onLoadAnimeRecommendations);
   }
 
   Future<void> _onLoadAnimeDetail(
@@ -130,6 +136,50 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         emit(currentState.copyWith(
           episodesLoading: false,
           episodesError: 'Failed to load episodes: ${e.toString()}',
+        ));
+      }
+    }
+  }
+
+  Future<void> _onLoadAnimeRecommendations(
+    LoadAnimeRecommendations event,
+    Emitter<AnimeDetailState> emit,
+  ) async {
+    try {
+      // Check if we already have recommendations in memory cache
+      if (_recommendationsCache.containsKey(event.malId)) {
+        final currentState = state;
+        if (currentState is AnimeDetailLoaded) {
+          emit(currentState.copyWith(recommendations: _recommendationsCache[event.malId]));
+        }
+        return;
+      }
+
+      // Update state to show recommendations are loading if anime detail is already loaded
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(recommendationsLoading: true));
+      }
+
+      final recommendations = await _getAnimeRecommendationsUseCase(event.malId);
+
+      // Store in memory cache
+      _recommendationsCache[event.malId] = recommendations;
+
+      // Update state with recommendations - check current state again as it might have changed
+      final updatedState = state;
+      if (updatedState is AnimeDetailLoaded) {
+        emit(updatedState.copyWith(
+          recommendations: recommendations,
+          recommendationsLoading: false,
+        ));
+      }
+    } catch (e) {
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(
+          recommendationsLoading: false,
+          recommendationsError: 'Failed to load recommendations: ${e.toString()}',
         ));
       }
     }

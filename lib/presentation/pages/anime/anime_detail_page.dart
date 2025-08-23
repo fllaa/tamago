@@ -31,6 +31,8 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     getIt<AnimeDetailBloc>().add(LoadAnimeDetail(malId: widget.malId));
     // Load episodes when the page initializes
     getIt<AnimeDetailBloc>().add(LoadAnimeEpisodes(malId: widget.malId));
+    // Load recommendations when the page initializes
+    getIt<AnimeDetailBloc>().add(LoadAnimeRecommendations(malId: widget.malId));
   }
 
   @override
@@ -300,7 +302,7 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                   ],
                 ),
                 SizedBox(
-                  height: 600,
+                  height: 300,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
@@ -545,45 +547,108 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
   }
 
   Widget _buildRecommendationsTab() {
-    // Dummy data for recommendations
-    final recommendations = List.generate(
-      5,
-      (index) => {
-        'id': index + 1,
-        'title': 'Recommended Anime ${index + 1}',
-        'image': 'https://via.placeholder.com/150',
-      },
-    );
+    return BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
+      builder: (context, state) {
+        if (state is AnimeDetailLoaded) {
+          if (state.recommendationsLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: recommendations.length,
-      itemBuilder: (context, index) {
-        final recommendation = recommendations[index] as Map<String, dynamic>;
-        return Container(
-          width: 150,
-          margin: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: const DecorationImage(
-                    image: NetworkImage('https://via.placeholder.com/150'),
-                    fit: BoxFit.cover,
+          if (state.recommendationsError != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Failed to load recommendations',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    state.recommendationsError!,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (state.recommendations == null || state.recommendations!.isEmpty) {
+            return const Center(
+              child: Text('No recommendations available'),
+            );
+          }
+
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: state.recommendations!.length,
+            itemBuilder: (context, index) {
+              final recommendation = state.recommendations![index];
+              return Container(
+                width: 150,
+                margin: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    // Navigate to the recommended anime detail page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AnimeDetailPage(
+                          malId: recommendation.entry.malId,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                              recommendation.entry.imageUrl ??
+                                  'https://via.placeholder.com/150',
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        recommendation.entry.title,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${recommendation.votes} votes',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                recommendation['title'] as String,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
+              );
+            },
+          );
+        }
+
+        return const Center(
+          child: CircularProgressIndicator(),
         );
       },
     );
