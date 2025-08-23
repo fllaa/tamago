@@ -14,22 +14,34 @@ class AnimeDetailLoading extends AnimeDetailState {}
 class AnimeDetailLoaded extends AnimeDetailState {
   final Anime anime;
   final bool isFromCache;
+  final List<Episode>? episodes;
+  final bool episodesLoading;
+  final String? episodesError;
 
   const AnimeDetailLoaded({
     required this.anime,
     this.isFromCache = false,
+    this.episodes,
+    this.episodesLoading = false,
+    this.episodesError,
   });
 
   @override
-  List<Object?> get props => [anime, isFromCache];
+  List<Object?> get props => [anime, isFromCache, episodes, episodesLoading, episodesError];
 
   AnimeDetailLoaded copyWith({
     Anime? anime,
     bool? isFromCache,
+    List<Episode>? episodes,
+    bool? episodesLoading,
+    String? episodesError,
   }) {
     return AnimeDetailLoaded(
       anime: anime ?? this.anime,
       isFromCache: isFromCache ?? this.isFromCache,
+      episodes: episodes ?? this.episodes,
+      episodesLoading: episodesLoading ?? this.episodesLoading,
+      episodesError: episodesError,
     );
   }
 }

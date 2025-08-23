@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:tamago/core/constants/app_constants.dart';
 import 'package:tamago/core/services/anime_service.dart';
 import 'package:tamago/core/services/storage_service.dart';
@@ -15,11 +16,14 @@ class AnimeRepositoryImpl implements AnimeRepository {
   static const String _seasonNowCacheKey = 'season_now_cache';
   static const String _seasonUpcomingCacheKey = 'season_upcoming_cache';
   static const String _animeDetailCacheKeyPrefix = 'anime_detail_cache_';
+  static const String _animeEpisodesCacheKeyPrefix = 'anime_episodes_cache_';
   static const String _topAnimesTimestampKey = 'top_animes_timestamp';
   static const String _seasonNowTimestampKey = 'season_now_timestamp';
   static const String _seasonUpcomingTimestampKey = 'season_upcoming_timestamp';
   static const String _animeDetailTimestampKeyPrefix =
       'anime_detail_timestamp_';
+  static const String _animeEpisodesTimestampKeyPrefix =
+      'anime_episodes_timestamp_';
 
   AnimeRepositoryImpl({
     required this.animeService,
@@ -138,6 +142,36 @@ class AnimeRepositoryImpl implements AnimeRepository {
         return AnimeDetailResult(anime: cachedData, isFromCache: true);
       }
       throw Exception('Failed to fetch anime detail: $e');
+    }
+  }
+
+  @override
+  Future<List<Episode>> getAnimeEpisodes(int malId, {int page = 1}) async {
+    try {
+      final cacheKey = '$_animeEpisodesCacheKeyPrefix${malId}_$page';
+      final timestampKey = '$_animeEpisodesTimestampKeyPrefix${malId}_$page';
+
+      // Check cache first
+      final cachedData = await _getEpisodesFromCache(cacheKey, timestampKey);
+      if (cachedData != null) {
+        return cachedData;
+      }
+
+      // Fetch from API if cache is invalid or empty
+      final episodes = await animeService.getAnimeEpisodes(malId, page: page);
+
+      // Save to cache
+      await _saveEpisodesToCache(cacheKey, timestampKey, episodes);
+
+      return episodes;
+    } catch (e) {
+      // Try to return cached data even if it's expired in case of network error
+      final cacheKey = '$_animeEpisodesCacheKeyPrefix${malId}_$page';
+      final cachedData = await _getEpisodesFromCacheIgnoreExpiry(cacheKey);
+      if (cachedData != null) {
+        return cachedData;
+      }
+      throw Exception('Failed to fetch anime episodes: $e');
     }
   }
 
@@ -262,6 +296,75 @@ class AnimeRepositoryImpl implements AnimeRepository {
         storageService.set(
           cacheKey,
           jsonEncode(anime.toJson()),
+        ),
+        storageService.set(
+          timestampKey,
+          DateTime.now().toIso8601String(),
+        ),
+      ]);
+    } catch (e) {
+      // Silently fail cache save
+    }
+  }
+
+  // Helper method to check if episodes cache is valid and return cached data
+  Future<List<Episode>?> _getEpisodesFromCache(
+      String cacheKey, String timestampKey) async {
+    try {
+      final cachedJson = await storageService.get(cacheKey);
+      final timestampString = await storageService.get(timestampKey);
+
+      if (cachedJson == null || timestampString == null) {
+        return null;
+      }
+
+      final timestamp = DateTime.parse(timestampString);
+      final now = DateTime.now();
+
+      // Check if cache is still valid (within 24 hours)
+      if (now.difference(timestamp) >
+          Duration(seconds: AppConstants.defaultCacheValidityDuration)) {
+        return null;
+      }
+
+      final episodes = (jsonDecode(cachedJson) as List)
+          .map((json) => Episode.fromJson(json))
+          .toList();
+
+      return episodes;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper method to get episodes cached data ignoring expiry (for fallback)
+  Future<List<Episode>?> _getEpisodesFromCacheIgnoreExpiry(
+      String cacheKey) async {
+    try {
+      final cachedJson = await storageService.get(cacheKey);
+
+      if (cachedJson == null) {
+        return null;
+      }
+
+      final episodes = (jsonDecode(cachedJson) as List)
+          .map((json) => Episode.fromJson(json))
+          .toList();
+
+      return episodes;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper method to save episodes to cache
+  Future<void> _saveEpisodesToCache(
+      String cacheKey, String timestampKey, List<Episode> episodes) async {
+    try {
+      await Future.wait([
+        storageService.set(
+          cacheKey,
+          jsonEncode(episodes.map((e) => e.toJson()).toList()),
         ),
         storageService.set(
           timestampKey,

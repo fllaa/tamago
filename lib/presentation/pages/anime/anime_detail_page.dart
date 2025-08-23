@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
@@ -27,6 +29,8 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     _tabController = TabController(length: 3, vsync: this);
     // Add the load event to the singleton bloc
     getIt<AnimeDetailBloc>().add(LoadAnimeDetail(malId: widget.malId));
+    // Load episodes when the page initializes
+    getIt<AnimeDetailBloc>().add(LoadAnimeEpisodes(malId: widget.malId));
   }
 
   @override
@@ -296,12 +300,19 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                   ],
                 ),
                 SizedBox(
-                  height: 300,
+                  height: 600,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      // Episodes tab with dummy data
-                      _buildEpisodesTab(),
+                      // Episodes tab with real data
+                      BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
+                        builder: (context, state) {
+                          if (state is AnimeDetailLoaded) {
+                            return _buildEpisodesTab(state);
+                          }
+                          return _buildEpisodesTab(null);
+                        },
+                      ),
                       // Recommendations tab with dummy data
                       _buildRecommendationsTab(),
                       // Reviews tab with dummy data
@@ -394,32 +405,143 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     );
   }
 
-  Widget _buildEpisodesTab() {
-    // Dummy data for episodes
-    final episodes = List.generate(
-      12,
-      (index) => {
-        'id': index + 1,
-        'title': 'Episode ${index + 1}',
-        'duration': '24 min',
-        'aired': 'Oct ${index + 1}, 2023',
-      },
-    );
+  Widget _buildEpisodesTab(AnimeDetailLoaded? state) {
+    // Handle loading state
+    if (state?.episodesLoading == true) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading episodes...'),
+          ],
+        ),
+      );
+    }
+
+    // Handle error state
+    if (state?.episodesError != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              state!.episodesError!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                context.read<AnimeDetailBloc>().add(
+                      LoadAnimeEpisodes(malId: widget.malId),
+                    );
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Handle episodes data
+    final episodes = state?.episodes;
+    if (episodes == null || episodes.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.tv_off,
+              size: 48,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No episodes available',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       itemCount: episodes.length,
       itemBuilder: (context, index) {
-        final episode = episodes[index] as Map<String, dynamic>;
+        final episode = episodes[index];
         return ListTile(
-          title: Text(episode['title'] as String),
-          subtitle: Text('${episode['duration']} • ${episode['aired']}'),
+          leading: CircleAvatar(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: Text(
+              episode.malId.toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          title: Text(
+            episode.title ?? 'Episode ${episode.malId}',
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (episode.aired != null)
+                Text(
+                  'Aired: ${_formatAiredDate(episode.aired!)}',
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                  ),
+                ),
+              if (episode.score != null)
+                Text(
+                  'Score: ${episode.score}',
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+                  ),
+                ),
+            ],
+          ),
           trailing: const Icon(Icons.play_arrow),
           onTap: () {
             // Play episode action
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Playing ${episode.title ?? "Episode ${episode.malId}"}'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
           },
         );
       },
     );
+  }
+
+  String _formatAiredDate(String airedDate) {
+    try {
+      final dateTime = DateTime.parse(airedDate);
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    } catch (e) {
+      return airedDate; // Return original if parsing fails
+    }
   }
 
   Widget _buildRecommendationsTab() {

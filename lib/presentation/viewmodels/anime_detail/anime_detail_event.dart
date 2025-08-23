@@ -28,3 +28,16 @@ class RefreshAnimeDetail extends AnimeDetailEvent {
   @override
   List<Object> get props => [malId];
 }
+
+class LoadAnimeEpisodes extends AnimeDetailEvent {
+  final int malId;
+  final int page;
+
+  const LoadAnimeEpisodes({
+    required this.malId,
+    this.page = 1,
+  });
+
+  @override
+  List<Object> get props => [malId, page];
+}

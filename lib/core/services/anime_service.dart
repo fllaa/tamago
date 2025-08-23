@@ -63,4 +63,15 @@ class AnimeService {
       return null;
     }
   }
+
+  // Get anime episodes by mal_id
+  Future<List<Episode>> getAnimeEpisodes(int malId, {int page = 1}) async {
+    try {
+      final response = await _jikan.getAnimeEpisodes(malId, page: page);
+      return response.toList();
+    } catch (e) {
+      // Return empty list if there's an error
+      return [];
+    }
+  }
 }
