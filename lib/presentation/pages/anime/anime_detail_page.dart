@@ -7,10 +7,12 @@ import 'package:tamago/di/injection_container.dart';
 
 class AnimeDetailPage extends StatefulWidget {
   final int malId;
+  final String? imageUrl;
 
   const AnimeDetailPage({
     super.key,
     required this.malId,
+    this.imageUrl,
   });
 
   @override
@@ -77,7 +79,100 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
         body: BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
           builder: (context, state) {
             if (state is AnimeDetailLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return CustomScrollView(
+                slivers: [
+                  // Trailer video section placeholder
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: 250,
+                      color: Colors.black,
+                      child: const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  // Anime information section placeholder
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Poster placeholder with hero tag
+                          Container(
+                            width: 120,
+                            height: 180,
+                            margin: const EdgeInsets.only(right: 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Hero(
+                                tag: 'anime_poster_${widget.malId}',
+                                child: widget.imageUrl != null
+                                    ? Image.network(
+                                        widget.imageUrl!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Container(
+                                            color: Colors.grey[300],
+                                            child: const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                          );
+                                        },
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return Container(
+                                            color: Colors.grey[200],
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Container(
+                                        color: Colors.grey[300],
+                                        child: const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                          // Info placeholder
+                          const Expanded(
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
             } else if (state is AnimeDetailError) {
               return Center(
                 child: Column(
@@ -169,36 +264,116 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                         ],
                       ),
                     ),
-                  // Title and English title
-                  Text(
-                    anime.title,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  if (anime.titleEnglish != null &&
-                      anime.titleEnglish!.isNotEmpty)
-                    Text(
-                      anime.titleEnglish!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.7),
-                          ),
-                    ),
-                  const SizedBox(height: 16),
 
-                  // Aired date, season, status, studio, and rating
-                  _buildInfoRow('Aired', anime.aired?.toString() ?? 'N/A'),
-                  _buildInfoRow('Season', anime.season?.toString() ?? 'N/A'),
-                  _buildInfoRow('Status', anime.status?.toString() ?? 'N/A'),
-                  _buildInfoRow(
-                      'Studio',
-                      anime.studios.isNotEmpty == true
-                          ? anime.studios.map((s) => s.name).join(', ')
-                          : 'N/A'),
-                  _buildInfoRow('Score', anime.score?.toString() ?? 'N/A'),
+                  // Poster image and info rows section
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Poster image on the left
+                      Container(
+                        width: 120,
+                        height: 180,
+                        margin: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Hero(
+                            tag: 'anime_poster_${widget.malId}',
+                            child: Image.network(
+                              anime.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(
+                                    Icons.image_not_supported,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: Colors.grey[200],
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Info rows on the right
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Title and English title
+                            Text(
+                              anime.title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            if (anime.titleEnglish != null &&
+                                anime.titleEnglish!.isNotEmpty)
+                              Text(
+                                anime.titleEnglish!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withOpacity(0.7),
+                                    ),
+                              ),
+                            const SizedBox(height: 16),
+                            _buildInfoRow(
+                                'Aired', anime.aired?.toString() ?? 'N/A'),
+                            _buildInfoRow(
+                                'Season', anime.season?.toString() ?? 'N/A'),
+                            _buildInfoRow(
+                                'Status', anime.status?.toString() ?? 'N/A'),
+                            _buildInfoRow(
+                                'Studio',
+                                anime.studios.isNotEmpty == true
+                                    ? anime.studios
+                                        .map((s) => s.name)
+                                        .join(', ')
+                                    : 'N/A'),
+                            _buildInfoRow(
+                                'Score', anime.score?.toString() ?? 'N/A'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
 
                   // Play and download buttons
@@ -612,6 +787,7 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                       MaterialPageRoute(
                         builder: (context) => AnimeDetailPage(
                           malId: recommendation.entry.malId,
+                          imageUrl: recommendation.entry.imageUrl,
                         ),
                       ),
                     );
@@ -622,12 +798,26 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                         height: 200,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          image: DecorationImage(
-                            image: NetworkImage(
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Hero(
+                            tag: 'anime_poster_${recommendation.entry.malId}',
+                            child: Image.network(
                               recommendation.entry.imageUrl ??
                                   'https://via.placeholder.com/150',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(
+                                    Icons.image_not_supported,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
                             ),
-                            fit: BoxFit.cover,
                           ),
                         ),
                       ),

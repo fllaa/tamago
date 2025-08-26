@@ -27,6 +27,7 @@ class MovieCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => AnimeDetailPage(
               malId: id,
+              imageUrl: imageUrl,
             ),
           ),
         );
@@ -50,20 +51,23 @@ class MovieCard extends StatelessWidget {
                       child: AspectRatio(
                         aspectRatio:
                             425 / 600, // Netflix-like aspect ratio for posters
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            // Fallback image if network image fails
-                            return Container(
-                              color: Colors.grey[800],
-                              child: const Icon(
-                                Icons.movie,
-                                size: 40,
-                                color: Colors.white,
-                              ),
-                            );
-                          },
+                        child: Hero(
+                          tag: 'anime_poster_$id',
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              // Fallback image if network image fails
+                              return Container(
+                                color: Colors.grey[800],
+                                child: const Icon(
+                                  Icons.movie,
+                                  size: 40,
+                                  color: Colors.white,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),

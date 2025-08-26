@@ -146,137 +146,141 @@ class _HeroBannerState extends State<HeroBanner> {
         itemBuilder: (context, index) {
           final actualIndex = index % (widget.movies?.length ?? 1);
           final movie = widget.movies![actualIndex];
-          return Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: CachedNetworkImageProvider(movie.imageUrl),
-                fit: BoxFit.cover,
-              ),
-            ),
+          return Hero(
+            tag: 'anime_poster_${movie.malId}',
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withOpacity(0.9),
-                    Colors.black.withOpacity(0.7),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
+                image: DecorationImage(
+                  image: CachedNetworkImageProvider(movie.imageUrl),
+                  fit: BoxFit.cover,
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(
-                      movie.title,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: MediaQuery.of(context).size.width *
-                                    0.05, // Responsive font size
-                              ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    // Description
-                    Text(
-                      movie.synopsis ?? '',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: MediaQuery.of(context).size.width *
-                                0.030, // Responsive font size
-                          ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 24),
-                    // Action buttons
-                    Row(
-                      children: [
-                        // Play button
-                        ElevatedButton(
-                          onPressed: () {
-                            // Play action
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.play_arrow, size: 18),
-                              SizedBox(width: 8),
-                              Text(
-                                'Play',
-                                style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.width *
-                                      0.030, // Responsive font size
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        // More info button
-                        OutlinedButton(
-                          onPressed: () {
-                            // Navigate to anime detail page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AnimeDetailPage(
-                                  malId: movie.malId,
-                                ),
-                              ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.white),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.info_outline,
-                                  color: Colors.white, size: 18),
-                              SizedBox(width: 8),
-                              Text(
-                                'More Info',
-                                style: TextStyle(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.9),
+                      Colors.black.withOpacity(0.7),
+                      Colors.transparent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        movie.title,
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   color: Colors.white,
-                                  fontSize: MediaQuery.of(context).size.width *
-                                      0.030, // Responsive font size
                                   fontWeight: FontWeight.bold,
+                                  fontSize: MediaQuery.of(context).size.width *
+                                      0.05, // Responsive font size
                                 ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      // Description
+                      Text(
+                        movie.synopsis ?? '',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: MediaQuery.of(context).size.width *
+                                  0.030, // Responsive font size
+                            ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 24),
+                      // Action buttons
+                      Row(
+                        children: [
+                          // Play button
+                          ElevatedButton(
+                            onPressed: () {
+                              // Play action
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
                               ),
-                            ],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.play_arrow, size: 18),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Play',
+                                  style: TextStyle(
+                                    fontSize: MediaQuery.of(context).size.width *
+                                        0.030, // Responsive font size
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(width: 16),
+                          // More info button
+                          OutlinedButton(
+                            onPressed: () {
+                              // Navigate to anime detail page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AnimeDetailPage(
+                                    malId: movie.malId,
+                                    imageUrl: movie.imageUrl,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.white),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.info_outline,
+                                    color: Colors.white, size: 18),
+                                SizedBox(width: 8),
+                                Text(
+                                  'More Info',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: MediaQuery.of(context).size.width *
+                                        0.030, // Responsive font size
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
