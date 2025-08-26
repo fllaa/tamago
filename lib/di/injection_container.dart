@@ -170,8 +170,8 @@ Future<void> init() async {
     ),
   );
 
-  getIt.registerSingleton<AnimeDetailBloc>(
-    AnimeDetailBloc(
+  getIt.registerFactory<AnimeDetailBloc>(
+    () => AnimeDetailBloc(
       getAnimeDetailUseCase: getIt<GetAnimeDetailUseCase>(),
       getAnimeEpisodesUseCase: getIt<GetAnimeEpisodesUseCase>(),
       getAnimeRecommendationsUseCase: getIt<GetAnimeRecommendationsUseCase>(),

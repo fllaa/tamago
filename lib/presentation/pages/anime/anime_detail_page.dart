@@ -26,15 +26,6 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    // Add the load event to the singleton bloc
-    getIt<AnimeDetailBloc>().add(LoadAnimeDetail(malId: widget.malId));
-    // Load episodes when the page initializes
-    getIt<AnimeDetailBloc>().add(LoadAnimeEpisodes(malId: widget.malId));
-    // Load recommendations when the page initializes
-    getIt<AnimeDetailBloc>().add(LoadAnimeRecommendations(malId: widget.malId));
-    // Load reviews when the page initializes
-    getIt<AnimeDetailBloc>()
-        .add(LoadAnimeReviews(malId: widget.malId, page: 1));
   }
 
   @override
@@ -45,8 +36,16 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: getIt<AnimeDetailBloc>(),
+    return BlocProvider(
+      create: (context) {
+        final bloc = getIt<AnimeDetailBloc>();
+        // Load anime data when bloc is created
+        bloc.add(LoadAnimeDetail(malId: widget.malId));
+        bloc.add(LoadAnimeEpisodes(malId: widget.malId));
+        bloc.add(LoadAnimeRecommendations(malId: widget.malId));
+        bloc.add(LoadAnimeReviews(malId: widget.malId, page: 1));
+        return bloc;
+      },
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
