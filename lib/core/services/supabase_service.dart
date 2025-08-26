@@ -14,7 +14,7 @@ class SupabaseService {
     final config = FlavorConfig.instance;
     _supabase = SupabaseClient(
       config.supabaseUrl,
-      config.supabaseAnonKey,
+      config.supabasePublishableKey,
     );
   }
 

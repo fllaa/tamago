@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 enum Flavor {
   dev,
   prod,
@@ -9,25 +11,21 @@ class FlavorConfig {
   final String baseUrl;
   final String assetBaseUrl;
   final String supabaseUrl;
-  final String supabaseAnonKey;
+  final String supabasePublishableKey;
 
   static FlavorConfig? _instance;
 
   factory FlavorConfig({
     required Flavor flavor,
     required String name,
-    required String baseUrl,
-    required String assetBaseUrl,
-    String? supabaseUrl,
-    String? supabaseAnonKey,
   }) {
     _instance ??= FlavorConfig._internal(
       flavor: flavor,
       name: name,
-      baseUrl: baseUrl,
-      assetBaseUrl: assetBaseUrl,
-      supabaseUrl: supabaseUrl ?? '',
-      supabaseAnonKey: supabaseAnonKey ?? '',
+      baseUrl: dotenv.env['BASE_URL'] ?? '',
+      assetBaseUrl: dotenv.env['ASSET_BASE_URL'] ?? '',
+      supabaseUrl: dotenv.env['SUPABASE_URL'] ?? '',
+      supabasePublishableKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY'] ?? '',
     );
     return _instance!;
   }
@@ -38,7 +36,7 @@ class FlavorConfig {
     required this.baseUrl,
     required this.assetBaseUrl,
     required this.supabaseUrl,
-    required this.supabaseAnonKey,
+    required this.supabasePublishableKey,
   });
 
   static FlavorConfig get instance {

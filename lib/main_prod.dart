@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'di/injection_container.dart' as di;
 import 'app/app.dart';
 import 'core/config/flavor_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: '.env.prod');
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -17,11 +21,6 @@ void main() async {
   FlavorConfig(
     flavor: Flavor.prod,
     name: 'PROD',
-    baseUrl: 'https://mock-api.flla.my.id/v1',
-    assetBaseUrl: 'https://assets.example.com',
-    supabaseUrl: 'https://qvpmjunybznphyhyrkvl.supabase.co',
-    supabaseAnonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2cG1qdW55YnpucGh5aHlya3ZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MTUyMjUsImV4cCI6MjA2NTM5MTIyNX0.8Gpih6X-C6xNGADGI3p0C2onRnC8NyPPJKBax3IJ608',
   );
 
   // Initialize dependencies
