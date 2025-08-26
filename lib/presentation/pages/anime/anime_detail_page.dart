@@ -781,14 +781,23 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                 margin: const EdgeInsets.all(8.0),
                 child: GestureDetector(
                   onTap: () {
-                    // Navigate to the recommended anime detail page
+                    // Navigate to the recommended anime detail page with hero-friendly transition
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => AnimeDetailPage(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            AnimeDetailPage(
                           malId: recommendation.entry.malId,
                           imageUrl: recommendation.entry.imageUrl,
                         ),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 300),
                       ),
                     );
                   },

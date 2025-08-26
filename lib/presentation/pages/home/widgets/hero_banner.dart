@@ -226,8 +226,9 @@ class _HeroBannerState extends State<HeroBanner> {
                                 Text(
                                   'Play',
                                   style: TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width *
-                                        0.030, // Responsive font size
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.030, // Responsive font size
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -238,14 +239,25 @@ class _HeroBannerState extends State<HeroBanner> {
                           // More info button
                           OutlinedButton(
                             onPressed: () {
-                              // Navigate to anime detail page
+                              // Navigate to anime detail page with hero-friendly transition
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => AnimeDetailPage(
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      AnimeDetailPage(
                                     malId: movie.malId,
                                     imageUrl: movie.imageUrl,
                                   ),
+                                  transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                                  transitionDuration:
+                                      const Duration(milliseconds: 300),
                                 ),
                               );
                             },
@@ -269,8 +281,9 @@ class _HeroBannerState extends State<HeroBanner> {
                                   'More Info',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: MediaQuery.of(context).size.width *
-                                        0.030, // Responsive font size
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.030, // Responsive font size
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

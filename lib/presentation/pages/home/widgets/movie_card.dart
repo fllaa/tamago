@@ -21,14 +21,23 @@ class MovieCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to anime detail page
+        // Navigate to anime detail page with hero-friendly transition
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => AnimeDetailPage(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                AnimeDetailPage(
               malId: id,
               imageUrl: imageUrl,
             ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 300),
           ),
         );
       },
