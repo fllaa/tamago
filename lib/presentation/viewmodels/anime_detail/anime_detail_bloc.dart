@@ -50,10 +50,14 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         final cachedAnime = _animeCache[event.malId]!;
         final isFromCache = _animeCacheSource[event.malId] ?? false;
         final cachedEpisodes = _episodesCache[event.malId];
+        final cachedRecommendations = _recommendationsCache[event.malId];
+        final cachedReviews = _reviewsCache[event.malId];
         emit(AnimeDetailLoaded(
           anime: cachedAnime,
           isFromCache: isFromCache,
           episodes: cachedEpisodes,
+          recommendations: cachedRecommendations,
+          reviews: cachedReviews,
         ));
         return;
       }
@@ -67,13 +71,17 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         _animeCache[event.malId] = result.anime!;
         _animeCacheSource[event.malId] = result.isFromCache;
 
-        // Check if we already have episodes in cache
+        // Check if we already have episodes, recommendations, and reviews in cache
         final cachedEpisodes = _episodesCache[event.malId];
+        final cachedRecommendations = _recommendationsCache[event.malId];
+        final cachedReviews = _reviewsCache[event.malId];
 
         emit(AnimeDetailLoaded(
           anime: result.anime!,
           isFromCache: result.isFromCache,
           episodes: cachedEpisodes,
+          recommendations: cachedRecommendations,
+          reviews: cachedReviews,
         ));
       } else {
         emit(const AnimeDetailError(
@@ -97,6 +105,7 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
     _animeCache.remove(event.malId);
     _animeCacheSource.remove(event.malId);
     _episodesCache.remove(event.malId);
+    _recommendationsCache.remove(event.malId);
     _reviewsCache.remove(event.malId);
 
     // For refresh, we'll load the data again with forceRefresh flag
