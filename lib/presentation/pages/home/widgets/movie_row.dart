@@ -59,7 +59,7 @@ class MovieRow extends StatelessWidget {
         ),
         SizedBox(
           height:
-              MediaQuery.of(context).size.height * 0.21, // 21% of screen height
+              MediaQuery.of(context).size.height * 0.22, // 22% of screen height
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
