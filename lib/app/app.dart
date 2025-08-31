@@ -14,6 +14,8 @@ import 'package:tamago/presentation/viewmodels/auth/login_viewmodel.dart';
 class App extends StatefulWidget {
   const App({super.key});
 
+  static final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
   static _AppState of(BuildContext context) {
     return context.findAncestorStateOfType<_AppState>()!;
   }
@@ -108,6 +110,7 @@ class _AppState extends State<App> {
         ],
         initialRoute: AppRoutes.splash,
         onGenerateRoute: RouteGenerator.generateRoute,
+        navigatorObservers: [App.routeObserver],
       ),
     );
   }

@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:tamago/presentation/pages/anime/anime_detail_page.dart';
+import 'package:tamago/app/app.dart';
+import 'package:tamago/core/utils/tab_visibility_notifier.dart';
 
 class HeroBanner extends StatefulWidget {
   final List<Anime>? movies;
@@ -18,22 +20,38 @@ class HeroBanner extends StatefulWidget {
   State<HeroBanner> createState() => _HeroBannerState();
 }
 
-class _HeroBannerState extends State<HeroBanner> {
+class _HeroBannerState extends State<HeroBanner>
+    with WidgetsBindingObserver, RouteAware {
   Color? _dominantColor;
   int _currentPage = 0;
   late PageController _pageController;
-  late Timer _timer;
+  Timer? _timer;
   Timer? _colorUpdateTimer;
+  bool _isAutoScrollPaused = false;
+  late TabVisibilityNotifier _tabVisibilityNotifier;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _tabVisibilityNotifier = TabVisibilityNotifier();
+    _tabVisibilityNotifier.addListener(_onTabVisibilityChanged);
+
     // Start at a large index to enable infinite scrolling
     final initialPage = (widget.movies?.length ?? 0) * 500;
     _pageController = PageController(initialPage: initialPage);
     _currentPage = initialPage;
     _updateDominantColor();
     _startAutoScroll();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      App.routeObserver.subscribe(this, route as PageRoute<dynamic>);
+    }
   }
 
   Future<void> _updateDominantColor() async {
@@ -62,8 +80,14 @@ class _HeroBannerState extends State<HeroBanner> {
   }
 
   void _startAutoScroll() {
+    if (_isAutoScrollPaused || !_tabVisibilityNotifier.isHomeTabVisible) return;
+
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      if (_pageController.hasClients && mounted) {
+      if (_pageController.hasClients &&
+          mounted &&
+          !_isAutoScrollPaused &&
+          _tabVisibilityNotifier.isHomeTabVisible) {
         setState(() {
           _currentPage = _currentPage + 1;
           _pageController.animateToPage(
@@ -82,12 +106,74 @@ class _HeroBannerState extends State<HeroBanner> {
     });
   }
 
+  void _pauseAutoScroll() {
+    _isAutoScrollPaused = true;
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void _resumeAutoScroll() {
+    _isAutoScrollPaused = false;
+    _startAutoScroll();
+  }
+
+  void _onTabVisibilityChanged() {
+    if (_tabVisibilityNotifier.isHomeTabVisible) {
+      _resumeAutoScroll();
+    } else {
+      _pauseAutoScroll();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _resumeAutoScroll();
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        _pauseAutoScroll();
+        break;
+    }
+  }
+
   @override
   void dispose() {
-    _timer.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    App.routeObserver.unsubscribe(this);
+    _tabVisibilityNotifier.removeListener(_onTabVisibilityChanged);
+    _timer?.cancel();
     _colorUpdateTimer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didPush() {
+    // Called when the current route has been pushed.
+    _resumeAutoScroll();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the top route has been popped off, and the current route shows up.
+    _resumeAutoScroll();
+  }
+
+  @override
+  void didPushNext() {
+    // Called when a new route has been pushed, and the current route is no longer visible.
+    _pauseAutoScroll();
+  }
+
+  @override
+  void didPop() {
+    // Called when the current route has been popped off.
+    _pauseAutoScroll();
   }
 
   @override
@@ -132,6 +218,10 @@ class _HeroBannerState extends State<HeroBanner> {
               setState(() {
                 _currentPage = index;
               });
+              // Reset auto-scroll timer when user manually swipes
+              if (!_isAutoScrollPaused && _tabVisibilityNotifier.isHomeTabVisible) {
+                _startAutoScroll();
+              }
               // Debounce color updates to prevent lag during swiping
               _colorUpdateTimer?.cancel();
               _colorUpdateTimer = Timer(const Duration(milliseconds: 600), () {

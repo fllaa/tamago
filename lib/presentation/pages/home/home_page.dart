@@ -10,6 +10,7 @@ import 'package:tamago/presentation/pages/profile/profile_page.dart';
 import 'package:tamago/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:tamago/core/utils/tab_visibility_notifier.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -51,6 +52,9 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
+    
+    // Notify the tab visibility notifier
+    TabVisibilityNotifier().setHomeTabVisibility(index == 0);
   }
 
   @override
