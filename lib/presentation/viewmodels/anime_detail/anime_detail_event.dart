@@ -65,3 +65,29 @@ class LoadAnimeReviews extends AnimeDetailEvent {
   @override
   List<Object> get props => [malId, page];
 }
+
+class ScrapeAnimeProviders extends AnimeDetailEvent {
+  final int malId;
+  final String animeTitle;
+  final dynamic webViewController; // WebViewController
+
+  const ScrapeAnimeProviders({
+    required this.malId,
+    required this.animeTitle,
+    required this.webViewController,
+  });
+
+  @override
+  List<Object> get props => [malId, animeTitle, webViewController];
+}
+
+class LoadAnimeProviderUrls extends AnimeDetailEvent {
+  final int malId;
+
+  const LoadAnimeProviderUrls({
+    required this.malId,
+  });
+
+  @override
+  List<Object> get props => [malId];
+}

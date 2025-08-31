@@ -9,6 +9,7 @@ import 'widgets/anime_info_section_widget.dart';
 import 'widgets/anime_episodes_tab_widget.dart';
 import 'widgets/anime_recommendations_tab_widget.dart';
 import 'widgets/anime_reviews_tab_widget.dart';
+import 'package:tamago/presentation/widgets/anime_scraping_webview.dart';
 
 class AnimeDetailPage extends StatefulWidget {
   final int malId;
@@ -206,8 +207,8 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
     );
   }
 
-  Widget _buildAnimeContent(
-      BuildContext context, Anime anime, bool isFromCache, AnimeDetailLoaded state) {
+  Widget _buildAnimeContent(BuildContext context, Anime anime, bool isFromCache,
+      AnimeDetailLoaded state) {
     return RefreshIndicator(
       onRefresh: () async {
         context.read<AnimeDetailBloc>().add(
@@ -247,6 +248,15 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                       // TODO: Implement download functionality
                     },
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // Provider scraping section
+                  AnimeScrapingWebView(
+                    malId: widget.malId,
+                    animeTitle: anime.title ?? 'Unknown',
+                    isVisible: false,
+                  ),
                 ],
               ),
             ),
@@ -282,6 +292,4 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
       ),
     );
   }
-
-
 }

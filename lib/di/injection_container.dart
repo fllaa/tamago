@@ -2,15 +2,20 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:tamago/core/network/api_client.dart';
 import 'package:tamago/core/network/network_info.dart';
+// NetworkInfoImpl is in the same file as NetworkInfo
+// SharedPrefsStorageService is in the same file as StorageService
 import 'package:tamago/core/services/anime_service.dart';
 import 'package:tamago/core/services/storage_service.dart';
 import 'package:tamago/core/services/supabase_service.dart';
+import 'package:tamago/core/services/web_scraping_service.dart';
 import 'package:tamago/data/repositories/auth_repository_impl.dart';
 import 'package:tamago/data/repositories/genre_repository_impl.dart';
 import 'package:tamago/data/repositories/anime_repository_impl.dart';
+import 'package:tamago/data/repositories/anime_provider_repository_impl.dart';
 import 'package:tamago/domain/repositories/anime_repository.dart';
 import 'package:tamago/domain/repositories/auth_repository.dart';
 import 'package:tamago/domain/repositories/genre_repository.dart';
+import 'package:tamago/domain/repositories/anime_provider_repository.dart';
 import 'package:tamago/domain/usecases/anime/get_top_animes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_season_now_animes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
@@ -18,6 +23,9 @@ import 'package:tamago/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_episodes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_recommendations_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_reviews_usecase.dart';
+import 'package:tamago/domain/usecases/anime_provider/get_anime_providers_usecase.dart';
+import 'package:tamago/domain/usecases/anime_provider/scrape_anime_urls_usecase.dart';
+import 'package:tamago/domain/usecases/anime_provider/get_anime_provider_urls_usecase.dart';
 import 'package:tamago/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:tamago/domain/usecases/auth/login_usecase.dart';
 import 'package:tamago/domain/usecases/auth/logout_usecase.dart';
@@ -64,6 +72,11 @@ Future<void> init() async {
     AnimeService.instance,
   );
 
+  // Web Scraping Service
+  getIt.registerSingleton<WebScrapingService>(
+    WebScrapingService.instance,
+  );
+
   getIt.registerSingleton<ApiClient>(
     ApiClient(
       dio: getIt<Dio>(),
@@ -90,6 +103,10 @@ Future<void> init() async {
 
   getIt.registerSingleton<GenreRepository>(
     GenreRepositoryImpl(supabaseService: getIt<SupabaseService>()),
+  );
+
+  getIt.registerSingleton<AnimeProviderRepository>(
+    AnimeProviderRepositoryImpl(supabaseService: getIt<SupabaseService>()),
   );
 
   // Use cases
@@ -127,6 +144,21 @@ Future<void> init() async {
 
   getIt.registerSingleton<GetHighlightedGenresUseCase>(
     GetHighlightedGenresUseCase(repository: getIt<GenreRepository>()),
+  );
+
+  getIt.registerSingleton<GetAnimeProvidersUseCase>(
+    GetAnimeProvidersUseCase(repository: getIt<AnimeProviderRepository>()),
+  );
+
+  getIt.registerSingleton<ScrapeAnimeUrlsUseCase>(
+    ScrapeAnimeUrlsUseCase(
+      repository: getIt<AnimeProviderRepository>(),
+      webScrapingService: getIt<WebScrapingService>(),
+    ),
+  );
+
+  getIt.registerSingleton<GetAnimeProviderUrlsUseCase>(
+    GetAnimeProviderUrlsUseCase(repository: getIt<AnimeProviderRepository>()),
   );
 
   getIt.registerSingleton<SignInWithGoogleUseCase>(
@@ -176,6 +208,9 @@ Future<void> init() async {
       getAnimeEpisodesUseCase: getIt<GetAnimeEpisodesUseCase>(),
       getAnimeRecommendationsUseCase: getIt<GetAnimeRecommendationsUseCase>(),
       getAnimeReviewsUseCase: getIt<GetAnimeReviewsUseCase>(),
+      getAnimeProvidersUseCase: getIt<GetAnimeProvidersUseCase>(),
+      scrapeAnimeUrlsUseCase: getIt<ScrapeAnimeUrlsUseCase>(),
+      getAnimeProviderUrlsUseCase: getIt<GetAnimeProviderUrlsUseCase>(),
     ),
   );
 }

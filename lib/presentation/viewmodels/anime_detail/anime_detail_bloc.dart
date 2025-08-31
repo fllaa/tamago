@@ -5,6 +5,10 @@ import 'package:tamago/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_episodes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_recommendations_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_reviews_usecase.dart';
+import 'package:tamago/domain/usecases/anime_provider/get_anime_providers_usecase.dart';
+import 'package:tamago/domain/usecases/anime_provider/scrape_anime_urls_usecase.dart';
+import 'package:tamago/domain/usecases/anime_provider/get_anime_provider_urls_usecase.dart';
+import 'package:tamago/domain/entities/anime_provider_url.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 
 part 'anime_detail_event.dart';
@@ -15,6 +19,9 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
   final GetAnimeEpisodesUseCase _getAnimeEpisodesUseCase;
   final GetAnimeRecommendationsUseCase _getAnimeRecommendationsUseCase;
   final GetAnimeReviewsUseCase _getAnimeReviewsUseCase;
+  final GetAnimeProvidersUseCase _getAnimeProvidersUseCase;
+  final ScrapeAnimeUrlsUseCase _scrapeAnimeUrlsUseCase;
+  final GetAnimeProviderUrlsUseCase _getAnimeProviderUrlsUseCase;
 
   // In-memory cache for anime details indexed by malId
   final Map<int, Anime> _animeCache = {};
@@ -22,22 +29,31 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
   final Map<int, List<Episode>> _episodesCache = {};
   final Map<int, List<Recommendation>> _recommendationsCache = {};
   final Map<int, List<Review>> _reviewsCache = {};
+  final Map<int, List<AnimeProviderUrl>> _providerUrlsCache = {};
 
   AnimeDetailBloc({
     required GetAnimeDetailUseCase getAnimeDetailUseCase,
     required GetAnimeEpisodesUseCase getAnimeEpisodesUseCase,
     required GetAnimeRecommendationsUseCase getAnimeRecommendationsUseCase,
     required GetAnimeReviewsUseCase getAnimeReviewsUseCase,
+    required GetAnimeProvidersUseCase getAnimeProvidersUseCase,
+    required ScrapeAnimeUrlsUseCase scrapeAnimeUrlsUseCase,
+    required GetAnimeProviderUrlsUseCase getAnimeProviderUrlsUseCase,
   })  : _getAnimeDetailUseCase = getAnimeDetailUseCase,
         _getAnimeEpisodesUseCase = getAnimeEpisodesUseCase,
         _getAnimeRecommendationsUseCase = getAnimeRecommendationsUseCase,
         _getAnimeReviewsUseCase = getAnimeReviewsUseCase,
+        _getAnimeProvidersUseCase = getAnimeProvidersUseCase,
+        _scrapeAnimeUrlsUseCase = scrapeAnimeUrlsUseCase,
+        _getAnimeProviderUrlsUseCase = getAnimeProviderUrlsUseCase,
         super(AnimeDetailInitial()) {
     on<LoadAnimeDetail>(_onLoadAnimeDetail);
     on<RefreshAnimeDetail>(_onRefreshAnimeDetail);
     on<LoadAnimeEpisodes>(_onLoadAnimeEpisodes);
     on<LoadAnimeRecommendations>(_onLoadAnimeRecommendations);
     on<LoadAnimeReviews>(_onLoadAnimeReviews);
+    on<ScrapeAnimeProviders>(_onScrapeAnimeProviders);
+    on<LoadAnimeProviderUrls>(_onLoadAnimeProviderUrls);
   }
 
   Future<void> _onLoadAnimeDetail(
@@ -52,12 +68,14 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         final cachedEpisodes = _episodesCache[event.malId];
         final cachedRecommendations = _recommendationsCache[event.malId];
         final cachedReviews = _reviewsCache[event.malId];
+        final cachedProviderUrls = _providerUrlsCache[event.malId];
         emit(AnimeDetailLoaded(
           anime: cachedAnime,
           isFromCache: isFromCache,
           episodes: cachedEpisodes,
           recommendations: cachedRecommendations,
           reviews: cachedReviews,
+          providerUrls: cachedProviderUrls,
         ));
         return;
       }
@@ -71,10 +89,11 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         _animeCache[event.malId] = result.anime!;
         _animeCacheSource[event.malId] = result.isFromCache;
 
-        // Check if we already have episodes, recommendations, and reviews in cache
+        // Check if we already have episodes, recommendations, reviews, and provider URLs in cache
         final cachedEpisodes = _episodesCache[event.malId];
         final cachedRecommendations = _recommendationsCache[event.malId];
         final cachedReviews = _reviewsCache[event.malId];
+        final cachedProviderUrls = _providerUrlsCache[event.malId];
 
         emit(AnimeDetailLoaded(
           anime: result.anime!,
@@ -82,6 +101,7 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
           episodes: cachedEpisodes,
           recommendations: cachedRecommendations,
           reviews: cachedReviews,
+          providerUrls: cachedProviderUrls,
         ));
       } else {
         emit(const AnimeDetailError(
@@ -107,6 +127,7 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
     _episodesCache.remove(event.malId);
     _recommendationsCache.remove(event.malId);
     _reviewsCache.remove(event.malId);
+    _providerUrlsCache.remove(event.malId);
 
     // For refresh, we'll load the data again with forceRefresh flag
     // The repository will handle cache invalidation if needed
@@ -133,7 +154,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         emit(currentState.copyWith(episodesLoading: true));
       }
 
-      final episodes = await _getAnimeEpisodesUseCase(event.malId, page: event.page);
+      final episodes =
+          await _getAnimeEpisodesUseCase(event.malId, page: event.page);
 
       // Store in memory cache
       _episodesCache[event.malId] = episodes;
@@ -166,7 +188,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
       if (_recommendationsCache.containsKey(event.malId)) {
         final currentState = state;
         if (currentState is AnimeDetailLoaded) {
-          emit(currentState.copyWith(recommendations: _recommendationsCache[event.malId]));
+          emit(currentState.copyWith(
+              recommendations: _recommendationsCache[event.malId]));
         }
         return;
       }
@@ -177,7 +200,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         emit(currentState.copyWith(recommendationsLoading: true));
       }
 
-      final recommendations = await _getAnimeRecommendationsUseCase(event.malId);
+      final recommendations =
+          await _getAnimeRecommendationsUseCase(event.malId);
 
       // Store in memory cache
       _recommendationsCache[event.malId] = recommendations;
@@ -195,7 +219,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
       if (currentState is AnimeDetailLoaded) {
         emit(currentState.copyWith(
           recommendationsLoading: false,
-          recommendationsError: 'Failed to load recommendations: ${e.toString()}',
+          recommendationsError:
+              'Failed to load recommendations: ${e.toString()}',
         ));
       }
     }
@@ -221,7 +246,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         emit(currentState.copyWith(reviewsLoading: true));
       }
 
-      final reviews = await _getAnimeReviewsUseCase(event.malId, page: event.page);
+      final reviews =
+          await _getAnimeReviewsUseCase(event.malId, page: event.page);
 
       // Store in memory cache
       _reviewsCache[event.malId] = reviews;
@@ -240,6 +266,94 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         emit(currentState.copyWith(
           reviewsLoading: false,
           reviewsError: 'Failed to load reviews: ${e.toString()}',
+        ));
+      }
+    }
+  }
+
+  Future<void> _onScrapeAnimeProviders(
+    ScrapeAnimeProviders event,
+    Emitter<AnimeDetailState> emit,
+  ) async {
+    try {
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(scrapingInProgress: true));
+      }
+
+      // Get available providers
+      final providers = await _getAnimeProvidersUseCase();
+
+      // Scrape URLs from providers
+      final scrapedUrls = await _scrapeAnimeUrlsUseCase(
+        malId: event.malId,
+        animeTitle: event.animeTitle,
+        providers: providers,
+        webViewController: event.webViewController,
+      );
+
+      // Store in memory cache
+      _providerUrlsCache[event.malId] = scrapedUrls;
+
+      // Update state with scraped URLs
+      final updatedState = state;
+      if (updatedState is AnimeDetailLoaded) {
+        emit(updatedState.copyWith(
+          providerUrls: scrapedUrls,
+          scrapingInProgress: false,
+        ));
+      }
+    } catch (e) {
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(
+          scrapingInProgress: false,
+          providerUrlsError: 'Failed to scrape provider URLs: ${e.toString()}',
+        ));
+      }
+    }
+  }
+
+  Future<void> _onLoadAnimeProviderUrls(
+    LoadAnimeProviderUrls event,
+    Emitter<AnimeDetailState> emit,
+  ) async {
+    try {
+      // Check if we already have provider URLs in memory cache
+      if (_providerUrlsCache.containsKey(event.malId)) {
+        final currentState = state;
+        if (currentState is AnimeDetailLoaded) {
+          emit(currentState.copyWith(
+              providerUrls: _providerUrlsCache[event.malId]));
+        }
+        return;
+      }
+
+      // Update state to show provider URLs are loading
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(providerUrlsLoading: true));
+      }
+
+      final providerUrls = await _getAnimeProviderUrlsUseCase(event.malId);
+
+      // Store in memory cache
+      _providerUrlsCache[event.malId] = providerUrls;
+
+      // Update state with provider URLs
+      final updatedState = state;
+      if (updatedState is AnimeDetailLoaded) {
+        emit(updatedState.copyWith(
+          providerUrls: providerUrls,
+          providerUrlsLoading: false,
+        ));
+      }
+    } catch (e) {
+      final currentState = state;
+      if (currentState is AnimeDetailLoaded) {
+        emit(currentState.copyWith(
+          providerUrlsLoading: false,
+          providerUrlsError: 'Failed to load provider URLs: ${e.toString()}',
         ));
       }
     }

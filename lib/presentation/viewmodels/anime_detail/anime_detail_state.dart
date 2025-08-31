@@ -23,6 +23,10 @@ class AnimeDetailLoaded extends AnimeDetailState {
   final List<Review>? reviews;
   final bool reviewsLoading;
   final String? reviewsError;
+  final List<dynamic>? providerUrls; // List<AnimeProviderUrl>
+  final bool providerUrlsLoading;
+  final String? providerUrlsError;
+  final bool scrapingInProgress;
 
   const AnimeDetailLoaded({
     required this.anime,
@@ -36,10 +40,14 @@ class AnimeDetailLoaded extends AnimeDetailState {
     this.reviews,
     this.reviewsLoading = false,
     this.reviewsError,
+    this.providerUrls,
+    this.providerUrlsLoading = false,
+    this.providerUrlsError,
+    this.scrapingInProgress = false,
   });
 
   @override
-  List<Object?> get props => [anime, isFromCache, episodes, episodesLoading, episodesError, recommendations, recommendationsLoading, recommendationsError, reviews, reviewsLoading, reviewsError];
+  List<Object?> get props => [anime, isFromCache, episodes, episodesLoading, episodesError, recommendations, recommendationsLoading, recommendationsError, reviews, reviewsLoading, reviewsError, providerUrls, providerUrlsLoading, providerUrlsError, scrapingInProgress];
 
   AnimeDetailLoaded copyWith({
     Anime? anime,
@@ -53,6 +61,10 @@ class AnimeDetailLoaded extends AnimeDetailState {
     List<Review>? reviews,
     bool? reviewsLoading,
     String? reviewsError,
+    List<dynamic>? providerUrls,
+    bool? providerUrlsLoading,
+    String? providerUrlsError,
+    bool? scrapingInProgress,
   }) {
     return AnimeDetailLoaded(
       anime: anime ?? this.anime,
@@ -66,6 +78,10 @@ class AnimeDetailLoaded extends AnimeDetailState {
       reviews: reviews ?? this.reviews,
       reviewsLoading: reviewsLoading ?? this.reviewsLoading,
       reviewsError: reviewsError,
+      providerUrls: providerUrls ?? this.providerUrls,
+      providerUrlsLoading: providerUrlsLoading ?? this.providerUrlsLoading,
+      providerUrlsError: providerUrlsError,
+      scrapingInProgress: scrapingInProgress ?? this.scrapingInProgress,
     );
   }
 }
