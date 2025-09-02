@@ -5,6 +5,7 @@ class AnimeProvider {
   final String qsSearch;
   final String searchSelector;
   final String? additionalQs;
+  final String? episodeScript;
 
   const AnimeProvider({
     required this.name,
@@ -13,6 +14,7 @@ class AnimeProvider {
     required this.qsSearch,
     required this.searchSelector,
     this.additionalQs,
+    this.episodeScript,
   });
 
   @override
@@ -24,7 +26,8 @@ class AnimeProvider {
         other.baseUrl == baseUrl &&
         other.qsSearch == qsSearch &&
         other.searchSelector == searchSelector &&
-        other.additionalQs == additionalQs;
+        other.additionalQs == additionalQs &&
+        other.episodeScript == episodeScript;
   }
 
   @override
@@ -34,11 +37,12 @@ class AnimeProvider {
         baseUrl.hashCode ^
         qsSearch.hashCode ^
         searchSelector.hashCode ^
-        additionalQs.hashCode;
+        additionalQs.hashCode ^
+        episodeScript.hashCode;
   }
 
   @override
   String toString() {
-    return 'AnimeProvider(name: $name, baseUrl: $baseUrl, qsSearch: $qsSearch, searchSelector: $searchSelector, additionalQs: $additionalQs)';
+    return 'AnimeProvider(name: $name, baseUrl: $baseUrl, qsSearch: $qsSearch, searchSelector: $searchSelector, additionalQs: $additionalQs, episodeScript: $episodeScript)';
   }
 }

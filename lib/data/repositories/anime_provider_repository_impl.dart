@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
+import 'package:supabase/supabase.dart';
 import 'package:tamago/core/services/supabase_service.dart';
 import 'package:tamago/data/models/anime_provider_model.dart';
 import 'package:tamago/data/models/anime_provider_url_model.dart';
+import 'package:tamago/data/models/anime_episode_model.dart';
 import 'package:tamago/domain/entities/anime_provider.dart';
 import 'package:tamago/domain/entities/anime_provider_url.dart';
+import 'package:tamago/domain/entities/anime_episode.dart';
 import 'package:tamago/domain/repositories/anime_provider_repository.dart';
 
 class AnimeProviderRepositoryImpl implements AnimeProviderRepository {
@@ -73,6 +77,63 @@ class AnimeProviderRepositoryImpl implements AnimeProviderRepository {
       return response.isNotEmpty;
     } catch (e) {
       return false;
+    }
+  }
+
+  @override
+  Future<List<AnimeEpisode>> getAnimeEpisodes(
+      int malId, String providerName) async {
+    try {
+      final response = await supabaseService.client
+          .from('anime_episodes')
+          .select()
+          .eq('mal_id', malId)
+          .eq('provider_name', providerName)
+          .order('episode');
+
+      final episodes = response.map((json) {
+        return AnimeEpisodeModel.fromJson(json);
+      }).toList();
+
+      return episodes.cast<AnimeEpisode>();
+    } catch (e) {
+      throw Exception('Failed to fetch anime episodes: $e');
+    }
+  }
+
+  @override
+  Future<void> saveAnimeEpisodes(List<AnimeEpisode> episodes) async {
+    try {
+      final models = episodes
+          .map((episode) => AnimeEpisodeModel.fromEntity(episode))
+          .toList();
+
+      final jsonList = models.map((model) => model.toJson()).toList();
+
+      await supabaseService.client
+          .from('anime_episodes')
+          .upsert(jsonList, defaultToNull: false);
+    } catch (e) {
+      throw Exception('Failed to save anime episodes: $e');
+    }
+  }
+
+  @override
+  Future<int> getAnimeEpisodesCount(int malId, String providerName) async {
+    try {
+      final response = await supabaseService.client
+          .from('anime_episodes')
+          .select('*')
+          .eq('mal_id', malId)
+          .eq('provider_name', providerName)
+          .count(CountOption.exact);
+
+      return response.count;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching episode count: $e');
+      }
+      return 0;
     }
   }
 }

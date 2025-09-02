@@ -23,6 +23,7 @@ class _AnimeScrapingWebViewState extends State<AnimeScrapingWebView> {
   late final WebViewController _controller;
   bool _isInitialized = false;
   bool _hasStartedScraping = false;
+  bool _hasStartedEpisodeScraping = false;
 
   @override
   void initState() {
@@ -60,7 +61,7 @@ class _AnimeScrapingWebViewState extends State<AnimeScrapingWebView> {
     if (!_hasStartedScraping && mounted) {
       _hasStartedScraping = true;
 
-      // Trigger the scraping process
+      // Trigger the scraping process with the actual WebView controller
       context.read<AnimeDetailBloc>().add(
             ScrapeAnimeProviders(
               malId: widget.malId,
@@ -71,82 +72,107 @@ class _AnimeScrapingWebViewState extends State<AnimeScrapingWebView> {
     }
   }
 
+  void _startEpisodeScraping(AnimeDetailLoaded state) {
+    if (mounted && !_hasStartedEpisodeScraping) {
+      _hasStartedEpisodeScraping = true;
+
+      // Get episode count from episodes list length instead of anime data
+      final episodeCount = state.episodes?.length ?? 0;
+
+      // Trigger episode scraping
+      context.read<AnimeDetailBloc>().add(
+            ScrapeAnimeEpisodes(
+              malId: widget.malId,
+              jikanEpisodeCount: episodeCount,
+              webViewController: _controller,
+            ),
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (!widget.isVisible) {
-      return const SizedBox.shrink();
-    }
-
     return BlocListener<AnimeDetailBloc, AnimeDetailState>(
       listener: (context, state) {
         if (state is AnimeDetailLoaded) {
+          // Handle scraping trigger from button
           if (state.scrapingInProgress &&
               _isInitialized &&
               !_hasStartedScraping) {
             _startScraping();
           }
+
+          // Trigger episode scraping after provider URLs are loaded
+          if (!state.scrapingInProgress &&
+              state.providerUrls != null &&
+              state.providerUrls!.isNotEmpty &&
+              !_hasStartedEpisodeScraping) {
+            _startEpisodeScraping(state);
+          }
         }
       },
-      child: Container(
-        height: 300,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.grey.shade100,
-                child: Row(
+      child: widget.isVisible
+          ? Container(
+              height: 300,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Column(
                   children: [
-                    Icon(
-                      Icons.web,
-                      size: 16,
-                      color: Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Scraping anime providers...',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      color: Colors.grey.shade100,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.web,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Scraping anime providers...',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Spacer(),
+                          BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
+                            builder: (context, state) {
+                              if (state is AnimeDetailLoaded &&
+                                  state.scrapingInProgress) {
+                                return const SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
-                    BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
-                      builder: (context, state) {
-                        if (state is AnimeDetailLoaded &&
-                            state.scrapingInProgress) {
-                          return const SizedBox(
-                            width: 12,
-                            height: 12,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                    Expanded(
+                      child: _isInitialized
+                          ? WebViewWidget(controller: _controller)
+                          : const Center(
+                              child: CircularProgressIndicator(),
                             ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
                     ),
                   ],
                 ),
               ),
-              Expanded(
-                child: _isInitialized
-                    ? WebViewWidget(controller: _controller)
-                    : const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 

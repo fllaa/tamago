@@ -46,6 +46,7 @@ dependencies:
   google_sign_in: ^6.2.2
   lucide_icons_flutter: ^3.0.8
   palette_generator: ^0.3.3
+  uuid: ^4.5.1
   
   # Supabase
   supabase: ^2.6.0

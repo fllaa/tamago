@@ -26,6 +26,8 @@ import 'package:tamago/domain/usecases/anime/get_anime_reviews_usecase.dart';
 import 'package:tamago/domain/usecases/anime_provider/get_anime_providers_usecase.dart';
 import 'package:tamago/domain/usecases/anime_provider/scrape_anime_urls_usecase.dart';
 import 'package:tamago/domain/usecases/anime_provider/get_anime_provider_urls_usecase.dart';
+import 'package:tamago/domain/usecases/get_provider_episodes_usecase.dart';
+import 'package:tamago/domain/usecases/scrape_anime_episodes_usecase.dart';
 import 'package:tamago/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:tamago/domain/usecases/auth/login_usecase.dart';
 import 'package:tamago/domain/usecases/auth/logout_usecase.dart';
@@ -161,6 +163,17 @@ Future<void> init() async {
     GetAnimeProviderUrlsUseCase(repository: getIt<AnimeProviderRepository>()),
   );
 
+  getIt.registerSingleton<GetProviderEpisodesUseCase>(
+    GetProviderEpisodesUseCase(getIt<AnimeProviderRepository>()),
+  );
+
+  getIt.registerSingleton<ScrapeAnimeEpisodesUseCase>(
+    ScrapeAnimeEpisodesUseCase(
+      repository: getIt<AnimeProviderRepository>(),
+      webScrapingService: getIt<WebScrapingService>(),
+    ),
+  );
+
   getIt.registerSingleton<SignInWithGoogleUseCase>(
     SignInWithGoogleUseCase(getIt<AuthRepository>()),
   );
@@ -211,6 +224,8 @@ Future<void> init() async {
       getAnimeProvidersUseCase: getIt<GetAnimeProvidersUseCase>(),
       scrapeAnimeUrlsUseCase: getIt<ScrapeAnimeUrlsUseCase>(),
       getAnimeProviderUrlsUseCase: getIt<GetAnimeProviderUrlsUseCase>(),
+      getProviderEpisodesUseCase: getIt<GetProviderEpisodesUseCase>(),
+      scrapeAnimeEpisodesUseCase: getIt<ScrapeAnimeEpisodesUseCase>(),
     ),
   );
 }

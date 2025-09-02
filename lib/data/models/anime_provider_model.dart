@@ -8,6 +8,7 @@ class AnimeProviderModel extends AnimeProvider {
     required super.qsSearch,
     required super.searchSelector,
     super.additionalQs,
+    super.episodeScript,
   });
 
   factory AnimeProviderModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +19,7 @@ class AnimeProviderModel extends AnimeProvider {
       qsSearch: json['qs_search'] as String,
       searchSelector: json['search_selector'] as String,
       additionalQs: json['additional_qs'] as String?,
+      episodeScript: json['episode_script'] as String?,
     );
   }
 
@@ -29,6 +31,7 @@ class AnimeProviderModel extends AnimeProvider {
       qsSearch: provider.qsSearch,
       searchSelector: provider.searchSelector,
       additionalQs: provider.additionalQs,
+      episodeScript: provider.episodeScript,
     );
   }
 
@@ -40,6 +43,7 @@ class AnimeProviderModel extends AnimeProvider {
       'qs_search': qsSearch,
       'search_selector': searchSelector,
       'additional_qs': additionalQs,
+      'episode_script': episodeScript,
     };
   }
 
@@ -51,6 +55,7 @@ class AnimeProviderModel extends AnimeProvider {
       qsSearch: qsSearch,
       searchSelector: searchSelector,
       additionalQs: additionalQs,
+      episodeScript: episodeScript,
     );
   }
 }

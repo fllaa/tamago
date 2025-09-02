@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_episodes_usecase.dart';
@@ -8,7 +9,10 @@ import 'package:tamago/domain/usecases/anime/get_anime_reviews_usecase.dart';
 import 'package:tamago/domain/usecases/anime_provider/get_anime_providers_usecase.dart';
 import 'package:tamago/domain/usecases/anime_provider/scrape_anime_urls_usecase.dart';
 import 'package:tamago/domain/usecases/anime_provider/get_anime_provider_urls_usecase.dart';
+import 'package:tamago/domain/usecases/get_provider_episodes_usecase.dart';
+import 'package:tamago/domain/usecases/scrape_anime_episodes_usecase.dart';
 import 'package:tamago/domain/entities/anime_provider_url.dart';
+import 'package:tamago/domain/entities/anime_episode.dart';
 import 'package:jikan_api_v4/jikan_api_v4.dart';
 
 part 'anime_detail_event.dart';
@@ -22,6 +26,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
   final GetAnimeProvidersUseCase _getAnimeProvidersUseCase;
   final ScrapeAnimeUrlsUseCase _scrapeAnimeUrlsUseCase;
   final GetAnimeProviderUrlsUseCase _getAnimeProviderUrlsUseCase;
+  final GetProviderEpisodesUseCase _getProviderEpisodesUseCase;
+  final ScrapeAnimeEpisodesUseCase _scrapeAnimeEpisodesUseCase;
 
   // In-memory cache for anime details indexed by malId
   final Map<int, Anime> _animeCache = {};
@@ -30,6 +36,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
   final Map<int, List<Recommendation>> _recommendationsCache = {};
   final Map<int, List<Review>> _reviewsCache = {};
   final Map<int, List<AnimeProviderUrl>> _providerUrlsCache = {};
+  final Map<String, List<AnimeEpisode>> _providerEpisodesCache =
+      {}; // Key: "malId_providerName"
 
   AnimeDetailBloc({
     required GetAnimeDetailUseCase getAnimeDetailUseCase,
@@ -39,6 +47,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
     required GetAnimeProvidersUseCase getAnimeProvidersUseCase,
     required ScrapeAnimeUrlsUseCase scrapeAnimeUrlsUseCase,
     required GetAnimeProviderUrlsUseCase getAnimeProviderUrlsUseCase,
+    required GetProviderEpisodesUseCase getProviderEpisodesUseCase,
+    required ScrapeAnimeEpisodesUseCase scrapeAnimeEpisodesUseCase,
   })  : _getAnimeDetailUseCase = getAnimeDetailUseCase,
         _getAnimeEpisodesUseCase = getAnimeEpisodesUseCase,
         _getAnimeRecommendationsUseCase = getAnimeRecommendationsUseCase,
@@ -46,6 +56,8 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         _getAnimeProvidersUseCase = getAnimeProvidersUseCase,
         _scrapeAnimeUrlsUseCase = scrapeAnimeUrlsUseCase,
         _getAnimeProviderUrlsUseCase = getAnimeProviderUrlsUseCase,
+        _getProviderEpisodesUseCase = getProviderEpisodesUseCase,
+        _scrapeAnimeEpisodesUseCase = scrapeAnimeEpisodesUseCase,
         super(AnimeDetailInitial()) {
     on<LoadAnimeDetail>(_onLoadAnimeDetail);
     on<RefreshAnimeDetail>(_onRefreshAnimeDetail);
@@ -54,6 +66,7 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
     on<LoadAnimeReviews>(_onLoadAnimeReviews);
     on<ScrapeAnimeProviders>(_onScrapeAnimeProviders);
     on<LoadAnimeProviderUrls>(_onLoadAnimeProviderUrls);
+    on<ScrapeAnimeEpisodes>(_onScrapeAnimeEpisodes);
   }
 
   Future<void> _onLoadAnimeDetail(
@@ -281,28 +294,32 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
         emit(currentState.copyWith(scrapingInProgress: true));
       }
 
-      // Get available providers
-      final providers = await _getAnimeProvidersUseCase();
+      // If webViewController is provided, do the scraping directly
+      if (event.webViewController != null) {
+        // Get available providers
+        final providers = await _getAnimeProvidersUseCase();
 
-      // Scrape URLs from providers
-      final scrapedUrls = await _scrapeAnimeUrlsUseCase(
-        malId: event.malId,
-        animeTitle: event.animeTitle,
-        providers: providers,
-        webViewController: event.webViewController,
-      );
+        // Scrape URLs from providers
+        final scrapedUrls = await _scrapeAnimeUrlsUseCase(
+          malId: event.malId,
+          animeTitle: event.animeTitle,
+          providers: providers,
+          webViewController: event.webViewController,
+        );
 
-      // Store in memory cache
-      _providerUrlsCache[event.malId] = scrapedUrls;
+        // Store in memory cache
+        _providerUrlsCache[event.malId] = scrapedUrls;
 
-      // Update state with scraped URLs
-      final updatedState = state;
-      if (updatedState is AnimeDetailLoaded) {
-        emit(updatedState.copyWith(
-          providerUrls: scrapedUrls,
-          scrapingInProgress: false,
-        ));
+        // Update state with scraped URLs
+        final updatedState = state;
+        if (updatedState is AnimeDetailLoaded) {
+          emit(updatedState.copyWith(
+            providerUrls: scrapedUrls,
+            scrapingInProgress: false,
+          ));
+        }
       }
+      // If no webViewController, just set scraping state and let WebView handle it
     } catch (e) {
       final currentState = state;
       if (currentState is AnimeDetailLoaded) {
@@ -355,6 +372,63 @@ class AnimeDetailBloc extends Bloc<AnimeDetailEvent, AnimeDetailState> {
           providerUrlsLoading: false,
           providerUrlsError: 'Failed to load provider URLs: ${e.toString()}',
         ));
+      }
+    }
+  }
+
+  Future<void> _onScrapeAnimeEpisodes(
+    ScrapeAnimeEpisodes event,
+    Emitter<AnimeDetailState> emit,
+  ) async {
+    try {
+      final currentState = state;
+      if (currentState is! AnimeDetailLoaded) {
+        return;
+      }
+
+      // Get provider URLs first
+      final providerUrls = currentState.providerUrls ?? [];
+      if (providerUrls.isEmpty) {
+        return;
+      }
+
+      // Get anime providers
+      final providers = await _getAnimeProvidersUseCase();
+
+      // Scrape episodes for each provider
+      for (final providerUrl in providerUrls) {
+        final provider = providers.firstWhere(
+          (p) => p.name == providerUrl.providerName,
+          orElse: () => throw Exception(
+              'Provider not found: ${providerUrl.providerName}'),
+        );
+
+        // Check cache first
+        final cacheKey = '${event.malId}_${provider.name}';
+        if (_providerEpisodesCache.containsKey(cacheKey)) {
+          continue; // Skip if already cached
+        }
+
+        // Try to get existing episodes from database first
+        List<AnimeEpisode> episodes =
+            await _getProviderEpisodesUseCase(event.malId, provider.name);
+
+        // If no episodes found, scrape them
+        episodes = await _scrapeAnimeEpisodesUseCase(
+          malId: event.malId,
+          provider: provider,
+          providerUrl: providerUrl,
+          jikanEpisodeCount: event.jikanEpisodeCount,
+          webViewController: event.webViewController,
+        );
+
+        // Cache the results
+        _providerEpisodesCache[cacheKey] = episodes;
+      }
+    } catch (e) {
+      // Handle errors silently for now
+      if (kDebugMode) {
+        print('Error scraping episodes: $e');
       }
     }
   }

@@ -124,6 +124,56 @@ class WebScrapingService {
     }
   }
 
+  /// Scrape episode list from anime page
+  Future<List<Map<String, dynamic>>?> scrapeEpisodeList({
+    required String animeUrl,
+    required String episodeScript,
+    required WebViewController webViewController,
+  }) async {
+    try {
+      if (kDebugMode) {
+        print('Scraping episodes from: $animeUrl');
+        print('Using episode script: ${episodeScript.substring(0, 100)}...');
+      }
+
+      // Navigate to anime page
+      await webViewController.loadRequest(Uri.parse(animeUrl));
+
+      // Wait for page to load completely
+      await _waitForPageLoad(webViewController);
+
+      // Additional delay for dynamic content
+      await Future.delayed(const Duration(seconds: 3));
+
+      // Execute the episode script
+      final result = await webViewController.runJavaScriptReturningResult(episodeScript);
+
+      if (result != null && result.toString() != 'null') {
+        // Parse the result as a list of maps
+        final resultString = result.toString();
+        
+        if (kDebugMode) {
+          print('Episode scraping result: $resultString');
+        }
+
+        // The result should be a JSON array string
+        // We'll need to parse it properly in the use case
+        return [{'raw_result': resultString}];
+      }
+
+      if (kDebugMode) {
+        print('No episodes found');
+      }
+
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error scraping episodes: $e');
+      }
+      return null;
+    }
+  }
+
   /// Extract path from full URL
   String extractPath(String fullUrl, String baseUrl) {
     if (fullUrl.startsWith(baseUrl)) {

@@ -51,6 +51,7 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
         bloc.add(LoadAnimeEpisodes(malId: widget.malId));
         bloc.add(LoadAnimeRecommendations(malId: widget.malId));
         bloc.add(LoadAnimeReviews(malId: widget.malId, page: 1));
+        bloc.add(LoadAnimeProviderUrls(malId: widget.malId));
         return bloc;
       },
       child: Scaffold(
@@ -273,10 +274,110 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
                   const SizedBox(height: 16),
 
                   // Provider scraping section
-                  AnimeScrapingWebView(
-                    malId: widget.malId,
-                    animeTitle: anime.title ?? 'Unknown',
-                    isVisible: false,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Anime Providers',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              context.read<AnimeDetailBloc>().add(
+                                ScrapeAnimeProviders(
+                                  malId: widget.malId,
+                                  animeTitle: anime.title ?? 'Unknown',
+                                  webViewController: null, // Will be handled by the WebView
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.refresh, size: 16),
+                            label: const Text('Scrape Providers'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              textStyle: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
+                        builder: (context, state) {
+                          if (state is AnimeDetailLoaded) {
+                            if (state.scrapingInProgress) {
+                              return const Card(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Text('Scraping providers...'),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                            
+                            if (state.providerUrls != null && state.providerUrls!.isNotEmpty) {
+                              return Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Found ${state.providerUrls!.length} provider(s)',
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ...state.providerUrls!.map((url) => Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 2),
+                                        child: Text('• ${url.providerName}: ${url.path}'),
+                                      )),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                            
+                            if (state.providerUrlsError != null) {
+                              return Card(
+                                color: Colors.red.shade50,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    'Error: ${state.providerUrlsError}',
+                                    style: TextStyle(color: Colors.red.shade700),
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                          
+                          return const Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text('Click "Scrape Providers" to find anime sources'),
+                            ),
+                          );
+                        },
+                      ),
+                      AnimeScrapingWebView(
+                        malId: widget.malId,
+                        animeTitle: anime.title ?? 'Unknown',
+                        isVisible: false,
+                      ),
+                    ],
                   ),
                 ],
               ),

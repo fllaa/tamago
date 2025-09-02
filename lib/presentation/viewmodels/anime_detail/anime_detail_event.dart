@@ -91,3 +91,18 @@ class LoadAnimeProviderUrls extends AnimeDetailEvent {
   @override
   List<Object> get props => [malId];
 }
+
+class ScrapeAnimeEpisodes extends AnimeDetailEvent {
+  final int malId;
+  final int jikanEpisodeCount;
+  final dynamic webViewController; // WebViewController
+
+  const ScrapeAnimeEpisodes({
+    required this.malId,
+    required this.jikanEpisodeCount,
+    required this.webViewController,
+  });
+
+  @override
+  List<Object> get props => [malId, jikanEpisodeCount, webViewController];
+}
