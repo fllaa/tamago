@@ -7,6 +7,8 @@ import 'package:tamago/presentation/pages/home/home_page.dart';
 import 'package:tamago/presentation/pages/product/product_detail_page.dart';
 import 'package:tamago/presentation/pages/product/product_list_page.dart';
 import 'package:tamago/presentation/pages/profile/profile_page.dart';
+import 'package:tamago/presentation/pages/anime/anime_detail_page.dart';
+import 'package:tamago/presentation/pages/anime/anime_episode_page.dart';
 import 'package:tamago/presentation/viewmodels/auth/sign_in_with_google_viewmodel.dart';
 import 'package:tamago/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
@@ -39,6 +41,19 @@ class RouteGenerator {
         return _buildRoute(const ProductListPage());
       case AppRoutes.productDetail:
         return _buildRoute(ProductDetailPage(productId: args as String));
+      case AppRoutes.animeDetail:
+        final animeArgs = args as Map<String, dynamic>;
+        return _buildRoute(AnimeDetailPage(
+          malId: animeArgs['malId'],
+          imageUrl: animeArgs['imageUrl'],
+        ));
+      case AppRoutes.animeEpisode:
+        final episodeArgs = args as Map<String, dynamic>;
+        return _buildRoute(AnimeEpisodePage(
+          animeId: episodeArgs['animeId'],
+          episodeNumber: episodeArgs['episodeNumber'],
+          animeTitle: episodeArgs['animeTitle'],
+        ));
       default:
         return _errorRoute();
     }

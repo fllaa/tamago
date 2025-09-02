@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tamago/presentation/viewmodels/anime_detail/anime_detail_bloc.dart';
+import 'package:tamago/app/routes/app_routes.dart';
 
 class AnimeEpisodesTabWidget extends StatelessWidget {
   final int malId;
@@ -129,13 +130,15 @@ class AnimeEpisodesTabWidget extends StatelessWidget {
           ),
           trailing: const Icon(Icons.play_arrow),
           onTap: () {
-            // Play episode action
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                    'Playing ${episode.title ?? "Episode ${episode.malId}"}'),
-                duration: const Duration(seconds: 2),
-              ),
+            // Navigate to episode page
+            Navigator.pushNamed(
+              context,
+              AppRoutes.animeEpisode,
+              arguments: {
+                'animeId': malId,
+                'episodeNumber': episode.malId ?? 1,
+                'animeTitle': state?.anime?.title ?? 'Unknown Anime',
+              },
             );
           },
         );

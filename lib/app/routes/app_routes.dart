@@ -11,5 +11,9 @@ class AppRoutes {
   static const String productList = '/products';
   static const String productDetail = '/products/detail';
 
+  // Anime routes
+  static const String animeDetail = '/anime/detail';
+  static const String animeEpisode = '/anime/episode';
+
   // Add other routes as needed
 }
