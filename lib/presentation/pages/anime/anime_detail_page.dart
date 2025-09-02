@@ -54,34 +54,9 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
         return bloc;
       },
       child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: const Text('Anime Details'),
-          actions: [
+        body: Stack(
+          children: [
             BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
-              builder: (context, state) {
-                if (state is AnimeDetailLoaded && state.isFromCache) {
-                  return IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () {
-                      context.read<AnimeDetailBloc>().add(
-                            RefreshAnimeDetail(malId: widget.malId),
-                          );
-                    },
-                    tooltip: 'Refresh (cached data)',
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
-        ),
-        body: BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
           builder: (context, state) {
             if (state is AnimeDetailLoading) {
               return CustomScrollView(
@@ -202,6 +177,52 @@ class _AnimeDetailPageState extends State<AnimeDetailPage>
             }
             return const Center(child: Text('Anime not found'));
           },
+            ),
+            // Floating back button
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 16,
+              left: 16,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ),
+            // Floating refresh button (only shown when data is from cache)
+            BlocBuilder<AnimeDetailBloc, AnimeDetailState>(
+              builder: (context, state) {
+                if (state is AnimeDetailLoaded && state.isFromCache) {
+                  return Positioned(
+                    top: MediaQuery.of(context).padding.top + 16,
+                    right: 16,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        onPressed: () {
+                          context.read<AnimeDetailBloc>().add(
+                                RefreshAnimeDetail(malId: widget.malId),
+                              );
+                        },
+                        tooltip: 'Refresh (cached data)',
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
         ),
       ),
     );
