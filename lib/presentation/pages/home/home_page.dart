@@ -6,6 +6,7 @@ import 'package:tamago/presentation/viewmodels/home/home_bloc.dart';
 import 'package:tamago/presentation/pages/home/widgets/category_slider.dart';
 import 'package:tamago/presentation/pages/home/widgets/hero_banner.dart';
 import 'package:tamago/presentation/pages/home/widgets/movie_row.dart';
+import 'package:tamago/presentation/pages/explore_page.dart';
 import 'package:tamago/presentation/pages/profile/profile_page.dart';
 import 'package:tamago/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:get_it/get_it.dart';
@@ -34,7 +35,7 @@ class _HomePageState extends State<HomePage> {
         child: const HomeContent(),
       ),
       Center(child: Text('Collections')),
-      Center(child: Text('Explore')),
+      const ExplorePage(),
       BlocProvider(
         create: (context) => GetIt.I<ProfileViewModel>()..loadUserProfile(),
         child: const ProfilePage(),
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
-    
+
     // Notify the tab visibility notifier
     TabVisibilityNotifier().setHomeTabVisibility(index == 0);
   }

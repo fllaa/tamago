@@ -96,4 +96,20 @@ class AnimeService {
       return [];
     }
   }
+
+  // Search anime by query
+  Future<List<Anime>> searchAnime(String query, {int page = 1}) async {
+    try {
+      final response = await _jikan.searchAnime(query: query, page: page);
+      // filter mal_id should be unique, because there has duplicate item on response
+      final unique = <int, Anime>{};
+      for (final anime in response) {
+        unique[anime.malId] = anime;
+      }
+      return unique.values.toList();
+    } catch (e) {
+      // Return empty list if there's an error
+      return [];
+    }
+  }
 }

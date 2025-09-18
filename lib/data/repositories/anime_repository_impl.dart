@@ -17,7 +17,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
   static const String _seasonUpcomingCacheKey = 'season_upcoming_cache';
   static const String _animeDetailCacheKeyPrefix = 'anime_detail_cache_';
   static const String _animeEpisodesCacheKeyPrefix = 'anime_episodes_cache_';
-  static const String _animeRecommendationsCacheKeyPrefix = 'anime_recommendations_cache_';
+  static const String _animeRecommendationsCacheKeyPrefix =
+      'anime_recommendations_cache_';
   static const String _animeReviewsCacheKeyPrefix = 'anime_reviews_cache_';
   static const String _topAnimesTimestampKey = 'top_animes_timestamp';
   static const String _seasonNowTimestampKey = 'season_now_timestamp';
@@ -120,6 +121,19 @@ class AnimeRepositoryImpl implements AnimeRepository {
   }
 
   @override
+  Future<List<Anime>> searchAnime(String query, {int page = 1}) async {
+    try {
+      // For search, we don't use cache as results should be fresh
+      // Fetch from API
+      final animeList = await animeService.searchAnime(query, page: page);
+
+      return animeList;
+    } catch (e) {
+      throw Exception('Failed to search anime: $e');
+    }
+  }
+
+  @override
   Future<AnimeDetailResult> getAnimeDetail(int malId) async {
     try {
       final cacheKey = '$_animeDetailCacheKeyPrefix$malId';
@@ -188,7 +202,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
       final timestampKey = '$_animeRecommendationsTimestampKeyPrefix$malId';
 
       // Check cache first
-      final cachedData = await _getRecommendationsFromCache(cacheKey, timestampKey);
+      final cachedData =
+          await _getRecommendationsFromCache(cacheKey, timestampKey);
       if (cachedData != null) {
         return cachedData;
       }
@@ -197,13 +212,15 @@ class AnimeRepositoryImpl implements AnimeRepository {
       final recommendations = await animeService.getAnimeRecommendations(malId);
 
       // Save to cache
-      await _saveRecommendationsToCache(cacheKey, timestampKey, recommendations);
+      await _saveRecommendationsToCache(
+          cacheKey, timestampKey, recommendations);
 
       return recommendations;
     } catch (e) {
       // Try to return cached data even if it's expired in case of network error
       final cacheKey = '$_animeRecommendationsCacheKeyPrefix$malId';
-      final cachedData = await _getRecommendationsFromCacheIgnoreExpiry(cacheKey);
+      final cachedData =
+          await _getRecommendationsFromCacheIgnoreExpiry(cacheKey);
       if (cachedData != null) {
         return cachedData;
       }
@@ -493,8 +510,8 @@ class AnimeRepositoryImpl implements AnimeRepository {
   }
 
   // Helper method to save recommendations to cache
-  Future<void> _saveRecommendationsToCache(
-      String cacheKey, String timestampKey, List<Recommendation> recommendations) async {
+  Future<void> _saveRecommendationsToCache(String cacheKey, String timestampKey,
+      List<Recommendation> recommendations) async {
     try {
       await Future.wait([
         storageService.set(

@@ -19,6 +19,7 @@ import 'package:tamago/domain/repositories/anime_provider_repository.dart';
 import 'package:tamago/domain/usecases/anime/get_top_animes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_season_now_animes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_season_upcoming_animes_usecase.dart';
+import 'package:tamago/domain/usecases/anime/search_anime_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_detail_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_episodes_usecase.dart';
 import 'package:tamago/domain/usecases/anime/get_anime_recommendations_usecase.dart';
@@ -38,6 +39,7 @@ import 'package:tamago/presentation/viewmodels/auth/sign_in_with_google_viewmode
 import 'package:tamago/presentation/viewmodels/profile/profile_viewmodel.dart';
 import 'package:tamago/presentation/viewmodels/home/home_bloc.dart';
 import 'package:tamago/presentation/viewmodels/anime_detail/anime_detail_bloc.dart';
+import 'package:tamago/presentation/viewmodels/search/search_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tamago/core/services/theme_service.dart';
@@ -126,6 +128,10 @@ Future<void> init() async {
 
   getIt.registerSingleton<GetSeasonUpcomingAnimesUseCase>(
     GetSeasonUpcomingAnimesUseCase(repository: getIt<AnimeRepository>()),
+  );
+
+  getIt.registerSingleton<SearchAnimeUseCase>(
+    SearchAnimeUseCase(repository: getIt<AnimeRepository>()),
   );
 
   getIt.registerSingleton<GetAnimeDetailUseCase>(
@@ -226,6 +232,12 @@ Future<void> init() async {
       getAnimeProviderUrlsUseCase: getIt<GetAnimeProviderUrlsUseCase>(),
       getProviderEpisodesUseCase: getIt<GetProviderEpisodesUseCase>(),
       scrapeAnimeEpisodesUseCase: getIt<ScrapeAnimeEpisodesUseCase>(),
+    ),
+  );
+
+  getIt.registerSingleton<SearchBloc>(
+    SearchBloc(
+      searchAnimeUseCase: getIt<SearchAnimeUseCase>(),
     ),
   );
 }
